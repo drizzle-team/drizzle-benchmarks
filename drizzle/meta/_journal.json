@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1691926408243,
+      "tag": "0000_flat_master_mold",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1691941522899,
+      "tag": "0001_concerned_mother_askani",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "name": "perf-drizzle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:docker": "tsx ./src/docker.ts",
+    "start:seed": "tsx ./src/seed.ts",
+    "start:generate": "tsx ./src/generate.ts",
+    "prepare:prisma": "prisma generate --schema src/schema.prisma",
+    "start:prisma": "tsx ./src/prisma-server.ts",
+    "start:drizzle": "tsx ./src/drizzle-server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@balena/dockerignore": "^1.0.2",
+    "@faker-js/faker": "^8.0.2",
+    "@types/deep-diff": "^1.0.2",
+    "@types/dockerode": "^3.3.19",
+    "@types/k6": "^0.45.2",
+    "@types/pg": "^8.10.2",
+    "@types/pidusage": "^2.0.2",
+    "@types/ramda": "^0.29.3",
+    "deep-diff": "^1.0.2",
+    "dockerode": "^3.3.5",
+    "drizzle-kit": "^0.19.12",
+    "esbuild": "^0.19.2",
+    "get-port": "^7.0.0",
+    "k6": "^0.0.0",
+    "postgres": "^3.3.5",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.1.1",
+    "@prisma/client": "5.1.1",
+    "axios": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.28.1",
+    "hono": "^3.4.1",
+    "pg": "^8.11.2",
+    "pidusage": "^3.0.2",
+    "prisma": "^5.1.1",
+    "ramda": "^0.29.0"
+  }
+}
