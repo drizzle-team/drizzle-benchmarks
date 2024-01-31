@@ -35,14 +35,14 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.4.0",
-    "@prisma/client": "^5.8.0",
+    "@prisma/client": "^5.9.0",
     "axios": "^1.6.5",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.3",
     "hono": "^3.12.1",
     "pg": "^8.11.3",
     "pidusage": "^3.0.2",
-    "prisma": "^5.8.0",
+    "prisma": "^5.9.0",
     "ramda": "^0.29.1"
   }
 }
