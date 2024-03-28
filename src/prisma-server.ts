@@ -26,13 +26,9 @@ app.get("/customer-by-id", async (c) => {
 });
 
 app.get("/search-customer", async (c) => {
-  const result = await prisma.customer.findMany({
-    where: {
-      companyName: {
-        search: `${c.req.query("term")}:*`,
-      },
-    },
-  });
+  const term = `${c.req.query("term")}:*`;
+  const result = await prisma.$queryRaw`select * from "customers" where to_tsvector('english', "customers"."companyName") @@ to_tsquery('english', ${term});`;
+
 
   return c.json(result);
 });
@@ -104,13 +100,8 @@ app.get("/product-with-supplier", async (c) => {
 });
 
 app.get("/search-product", async (c) => {
-  const result = await prisma.product.findMany({
-    where: {
-      name: {
-        search: `${c.req.query("term")}:*`,
-      },
-    },
-  });
+  const term = `${c.req.query("term")}:*`;
+  const result = await prisma.$queryRaw`select * from "products" where to_tsvector('english', "products"."name") @@ to_tsquery('english', ${term});`;
 
   return c.json(result);
 });
