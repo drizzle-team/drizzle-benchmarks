@@ -5,6 +5,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 import { Pool } from "pg";
 import { eq, ilike, placeholder, sql, asc } from "drizzle-orm";
+import cpuUsage from "./cpu-usage";
 import {
   customers,
   details,
@@ -133,6 +134,7 @@ const p13 = db
   .prepare("p13");
 
 const app = new Hono();
+app.route('', cpuUsage);
 app.get("/customers", async (c) => {
   const limit = Number(c.req.query("limit"));
   const offset = Number(c.req.query("offset"));

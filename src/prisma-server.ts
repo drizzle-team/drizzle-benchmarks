@@ -1,9 +1,11 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client";
+import cpuUsage from "./cpu-usage";
 const prisma = new PrismaClient();
 
 const app = new Hono();
+app.route('', cpuUsage);
 app.get("/customers", async (c) => {
   const limit = Number(c.req.query("limit"));
   const offset = Number(c.req.query("offset"));
