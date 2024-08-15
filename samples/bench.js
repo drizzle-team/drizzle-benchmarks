@@ -5,14 +5,17 @@ import http from 'k6/http';
 
 const data = new SharedArray('requests', function () {
   return JSON.parse(open('./data/requests.json'));
+  // return JSON.parse(open('./data/requests.json')).filter((it)=>!it.startsWith('/search'));
 });
 
-const host = `http://192.168.31.144:3000`; // drizzle
-// const host = `http://192.168.31.144:3001`; // prisma
+// const host = `http://192.168.31.144:3000`; // drizzle
+const host = `http://192.168.31.144:3001`; // prisma
 
 export const options = {
-  vus: 2500,
-  iterations: 1e6,
+  vus: 200,
+  duration: '300s',
+  // iterations: 600000,
+  
 };
   
 export default function () {
