@@ -1,10 +1,8 @@
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { alias } from "drizzle-orm/pg-core";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 import { Pool } from "pg";
-import { eq, ilike, placeholder, sql, asc } from "drizzle-orm";
+import { eq, sql, asc } from "drizzle-orm";
 import cpuUsage from "./cpu-usage";
 import {
   customers,
@@ -17,73 +15,82 @@ import {
 import "dotenv/config";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
-const db = drizzle(pool, { schema });
+const db = drizzle(pool, { schema, logger: false });
 
-const p1 = db
-  .select()
-  .from(customers)
-  .limit(placeholder("limit"))
-  .offset(placeholder("offset"))
+const p1 = db.query.customers
+  .findMany({
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
+    orderBy: customers.id,
+  })
   .prepare("p1");
 
-const p2 = db
-  .select()
-  .from(customers)
-  .where(eq(customers.id, placeholder("id")))
+const p2 = db.query.customers
+  .findFirst({
+    where: eq(customers.id, sql.placeholder("id")),
+  })
   .prepare("p2");
 
-const p3 = db
-  .select()
-  .from(customers)
-  .where(ilike(customers.companyName, placeholder("term")))
+const p3 = db.query.customers
+  .findMany({
+    where: sql`to_tsvector('english', ${customers.companyName
+      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
+  })
   .prepare("p3");
 
-const p4 = db
-  .select()
-  .from(employees)
-  .limit(placeholder("limit"))
-  .offset(placeholder("offset"))
+const p4 = db.query.employees
+  .findMany({
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
+    orderBy: employees.id,
+  })
   .prepare("p4");
 
-const e1 = alias(employees, "recipient");
-const p5 = db
-  .select()
-  .from(employees)
-  .where(eq(employees.id, placeholder("id")))
-  .leftJoin(e1, eq(employees.id, e1.recipientId))
+const p5 = db.query.employees
+  .findMany({
+    with: {
+      recipient: true,
+    },
+    where: eq(employees.id, sql.placeholder("id")),
+  })
   .prepare("p5");
 
-const p6 = db
-  .select()
-  .from(suppliers)
-  .limit(placeholder("limit"))
-  .offset(placeholder("offset"))
+const p6 = db.query.suppliers
+  .findMany({
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
+    orderBy: suppliers.id,
+  })
   .prepare("p6");
 
-const p7 = db
-  .select()
-  .from(suppliers)
-  .where(eq(suppliers.id, placeholder("id")))
+const p7 = db.query.suppliers
+  .findFirst({
+    where: eq(suppliers.id, sql.placeholder("id")),
+  })
   .prepare("p7");
 
-const p8 = db
-  .select()
-  .from(products)
-  .limit(placeholder("limit"))
-  .offset(placeholder("offset"))
+const p8 = db.query.products
+  .findMany({
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
+    orderBy: products.id,
+  })
   .prepare("p8");
 
-const p9 = db
-  .select()
-  .from(products)
-  .leftJoin(suppliers, eq(products.supplierId, suppliers.id))
-  .where(eq(products.id, placeholder("id")))
+const p9 = db.query.products
+  .findMany({
+    where: eq(products.id, sql.placeholder("id")),
+    with: {
+      supplier: true,
+    },
+  })
   .prepare("p9");
 
-const p10 = db
-  .select()
-  .from(products)
-  .where(ilike(products.name, placeholder("term")))
+const p10 = db.query.products
+  .findMany({
+    where: sql`to_tsvector('english', ${products.name
+      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
+  })
   .prepare("p10");
 
 const p11 = db
@@ -93,17 +100,16 @@ const p11 = db
     shipName: orders.shipName,
     shipCity: orders.shipCity,
     shipCountry: orders.shipCountry,
-    productsCount: sql`count(${details.productId})`.as<number>(),
-    quantitySum: sql`sum(${details.quantity})`.as<number>(),
-    totalPrice:
-      sql`sum(${details.quantity} * ${details.unitPrice})`.as<number>(),
+    productsCount: sql<number>`count(${details.productId})::int`,
+    quantitySum: sql<number>`sum(${details.quantity})::int`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
   })
   .from(orders)
-  .leftJoin(details, eq(orders.id, details.orderId))
+  .leftJoin(details, eq(details.orderId, orders.id))
   .groupBy(orders.id)
   .orderBy(asc(orders.id))
-  .limit(placeholder("limit"))
-  .offset(placeholder("offset"))
+  .limit(sql.placeholder("limit"))
+  .offset(sql.placeholder("offset"))
   .prepare("p11");
 
 const p12 = db
@@ -113,24 +119,28 @@ const p12 = db
     shipName: orders.shipName,
     shipCity: orders.shipCity,
     shipCountry: orders.shipCountry,
-    productsCount: sql`count(${details.productId})`.as<number>(),
-    quantitySum: sql`sum(${details.quantity})`.as<number>(),
-    totalPrice:
-      sql`sum(${details.quantity} * ${details.unitPrice})`.as<number>(),
+    productsCount: sql<number>`count(${details.productId})::int`,
+    quantitySum: sql<number>`sum(${details.quantity})::int`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
   })
   .from(orders)
-  .leftJoin(details, eq(orders.id, details.orderId))
-  .where(eq(orders.id, placeholder("id")))
+  .leftJoin(details, eq(details.orderId, orders.id))
+  .where(eq(orders.id, sql.placeholder("id")))
   .groupBy(orders.id)
   .orderBy(asc(orders.id))
   .prepare("p12");
 
-const p13 = db
-  .select()
-  .from(orders)
-  .leftJoin(details, eq(orders.id, details.orderId))
-  .leftJoin(products, eq(details.productId, products.id))
-  .where(eq(orders.id, placeholder("orderId")))
+const p13 = db.query.orders
+  .findMany({
+    with: {
+      details: {
+        with: {
+          product: true,
+        },
+      },
+    },
+    where: eq(orders.id, sql.placeholder("id")),
+  })
   .prepare("p13");
 
 const app = new Hono();
@@ -141,12 +151,15 @@ app.get("/customers", async (c) => {
   const result = await p1.execute({ limit, offset });
   return c.json(result);
 });
+
 app.get("/customer-by-id", async (c) => {
   const result = await p2.execute({ id: c.req.query("id") });
   return c.json(result);
 });
+
 app.get("/search-customer", async (c) => {
-  const term = `%${c.req.query("term")}%`;
+  // const term = `%${c.req.query("term")}%`;
+  const term = `${c.req.query("term")}:*`;
   const result = await p3.execute({ term });
   return c.json(result);
 });
@@ -190,7 +203,8 @@ app.get("/product-with-supplier", async (c) => {
 });
 
 app.get("/search-product", async (c) => {
-  const term = `%${c.req.query("term")}%`;
+  // const term = `%${c.req.query("term")}%`;
+  const term = `${c.req.query("term")}:*`;
   const result = await p10.execute({ term });
   return c.json(result);
 });
@@ -213,7 +227,8 @@ app.get("/order-with-details-and-products", async (c) => {
   return c.json(result);
 });
 
-serve({
+export default {
   fetch: app.fetch,
   port: 3000,
-});
+  reusePort: true,
+};

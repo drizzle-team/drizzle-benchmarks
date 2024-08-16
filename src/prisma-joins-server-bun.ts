@@ -1,7 +1,11 @@
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client";
 import cpuUsage from "./cpu-usage";
+
+import cluster from 'cluster';
+import os from "os"
+const numCPUs = os.cpus().length;
+
 const prisma = new PrismaClient();
 
 const app = new Hono();
@@ -55,6 +59,7 @@ app.get("/employee-with-recipient", async (c) => {
     where: {
       id: Number(c.req.query("id")!),
     },
+    relationLoadStrategy: "join",
     include: {
       recipient: true,
     },
@@ -98,6 +103,7 @@ app.get("/product-with-supplier", async (c) => {
     where: {
       id: Number(c.req.query("id")!),
     },
+    relationLoadStrategy: "join",
     include: {
       supplier: true,
     },
@@ -122,6 +128,7 @@ app.get("/orders-with-details", async (c) => {
   const offset = Number(c.req.query("offset"));
 
   const res = await prisma.order.findMany({
+    relationLoadStrategy: "join",
     include: {
       details: true,
     },
@@ -155,6 +162,7 @@ app.get("/orders-with-details", async (c) => {
 
 app.get("/order-with-details", async (c) => {
   const res = await prisma.order.findMany({
+    relationLoadStrategy: "join",
     include: {
       details: true,
     },
@@ -190,6 +198,7 @@ app.get("/order-with-details-and-products", async (c) => {
     where: {
       id: Number(c.req.query("id")!),
     },
+    relationLoadStrategy: "join",
     include: {
       details: {
         include: {
@@ -202,7 +211,8 @@ app.get("/order-with-details-and-products", async (c) => {
   return c.json(result);
 });
 
-serve({
+export default {
   fetch: app.fetch,
   port: 3001,
-});
+  reusePort: true,
+}
