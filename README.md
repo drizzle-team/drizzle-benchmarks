@@ -29,7 +29,7 @@ DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
 
 main("micro"); // nano | micro
 ```
-4. Make sure you have Node version 18 installed or above. You can use [`nvm use 18`](https://github.com/nvm-sh/nvm) command
+4. Make sure you have Node version 18 installed or above, we've used Node v22. You can use [`nvm use 22`](https://github.com/nvm-sh/nvm) command
 5. Start Drizzle/Prisma server:
 ```bash
 ## Drizzle
