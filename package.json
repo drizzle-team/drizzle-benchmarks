@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "bench": "tsx bench/index.ts --host http://localhost:3000 --name my-bench --folder results",
     "start:docker": "tsx ./src/docker.ts",
     "start:seed": "tsx ./src/seed.ts",
     "start:generate": "tsx ./src/generate.ts",
