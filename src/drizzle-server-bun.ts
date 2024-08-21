@@ -13,8 +13,11 @@ import {
   suppliers,
 } from "./schema";
 import "dotenv/config";
+import os from "os"
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
+const numCPUs = os.cpus().length;
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: numCPUs * 2, min: numCPUs * 2 });
 const db = drizzle(pool, { schema, logger: false });
 
 const p1 = db.query.customers
