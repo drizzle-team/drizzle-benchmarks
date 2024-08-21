@@ -13,11 +13,16 @@ import {
   suppliers,
 } from "./schema";
 import "dotenv/config";
-import os from "os"
+import cluster from "cluster";
+import os from "os";
 
 const numCPUs = os.cpus().length;
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: numCPUs * 2, min: numCPUs * 2 });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: numCPUs * 2,
+  min: numCPUs * 2,
+});
 const db = drizzle(pool, { schema, logger: false });
 
 const p1 = db.query.customers
@@ -36,8 +41,9 @@ const p2 = db.query.customers
 
 const p3 = db.query.customers
   .findMany({
-    where: sql`to_tsvector('english', ${customers.companyName
-      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
+    where: sql`to_tsvector('english', ${
+      customers.companyName
+    }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
   })
   .prepare("p3");
 
@@ -91,8 +97,9 @@ const p9 = db.query.products
 
 const p10 = db.query.products
   .findMany({
-    where: sql`to_tsvector('english', ${products.name
-      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
+    where: sql`to_tsvector('english', ${
+      products.name
+    }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
   })
   .prepare("p10");
 
@@ -147,7 +154,7 @@ const p13 = db.query.orders
   .prepare("p13");
 
 const app = new Hono();
-app.route('', cpuUsage);
+app.route("", cpuUsage);
 app.get("/customers", async (c) => {
   const limit = Number(c.req.query("limit"));
   const offset = Number(c.req.query("offset"));
@@ -230,8 +237,21 @@ app.get("/order-with-details-and-products", async (c) => {
   return c.json(result);
 });
 
-export default {
-  fetch: app.fetch,
-  port: 3000,
-  reusePort: true,
-};
+if (cluster.isPrimary) {
+  console.log(`Primary ${process.pid} is running`);
+  //Fork workers
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on("exit", (worker) => {
+    console.log(`worker ${worker.process.pid} died`);
+  });
+} else {
+  Bun.serve({
+    fetch: app.fetch,
+    port: 3000,
+    reusePort: true,
+  });
+  console.log(`Worker ${process.pid} started`);
+}
