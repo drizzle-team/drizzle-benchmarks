@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
-import { Pool } from "pg";
+import pg from "pg";
 import { eq, sql, asc } from "drizzle-orm";
 import cpuUsage from "./cpu-usage";
 import {
@@ -19,7 +19,7 @@ import os from "os"
 
 const numCPUs = os.cpus().length;
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
+const pool = new pg.native.Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
 const db = drizzle(pool, { schema, logger: false });
 
 const p1 = db.query.customers
@@ -38,9 +38,8 @@ const p2 = db.query.customers
 
 const p3 = db.query.customers
   .findMany({
-    where: sql`to_tsvector('english', ${
-      customers.companyName
-    }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
+    where: sql`to_tsvector('english', ${customers.companyName
+      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
   })
   .prepare("p3");
 
@@ -94,9 +93,8 @@ const p9 = db.query.products
 
 const p10 = db.query.products
   .findMany({
-    where: sql`to_tsvector('english', ${
-      products.name
-    }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
+    where: sql`to_tsvector('english', ${products.name
+      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
   })
   .prepare("p10");
 
@@ -238,7 +236,7 @@ if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} is running`);
 
   //Fork workers
-  for (let i=0; i < numCPUs; i++) {
+  for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
 

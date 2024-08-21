@@ -59,5 +59,5 @@ async function main() {
   process.exit(0);
 }
 
-const desiredPostgresPort = 5432;
+const desiredPostgresPort = 5434;
 main();
