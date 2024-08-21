@@ -8,7 +8,7 @@ const data = new SharedArray('requests', function () {
   return JSON.parse(open('../data/requests.json')).filter((it)=>!it.startsWith('/search'));
 });
 
-// const host = `http://192.168.31.144:3000`; // drizzle
+const host = __ENV.HOST || `http://192.168.31.144:3000`; // drizzle
 // const host = `http://192.168.31.144:3001`; // prisma
 
 export const options = {
@@ -53,7 +53,7 @@ export const options = {
   
 export default function () {
   const params = data[scenario.iterationInTest % data.length];
-  const url = `${__ENV.HOST}${params}`;
+  const url = `${host}${params}`;
   // const url = `${host}${params}`;
 
   http.get(url, {
