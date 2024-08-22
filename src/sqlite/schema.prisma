@@ -27,21 +27,21 @@ model Customer {
 }
 
 model Employee {
-  id              Int     @id @default(autoincrement())
-  lastName        String  @map("last_name")
-  firstName       String? @map("first_name")
+  id              Int      @id @default(autoincrement())
+  lastName        String   @map("last_name")
+  firstName       String?  @map("first_name")
   title           String
-  titleOfCourtesy String  @map("title_of_courtesy")
-  birthDate       Int     @map("birth_date")
-  hireDate        Int     @map("hire_date")
+  titleOfCourtesy String   @map("title_of_courtesy")
+  birthDate       DateTime @map("birth_date")
+  hireDate        DateTime @map("hire_date")
   address         String
   city            String
-  postalCode      String  @map("postal_code")
+  postalCode      String   @map("postal_code")
   country         String
-  homePhone       String  @map("home_phone")
+  homePhone       String   @map("home_phone")
   extension       Int
   notes           String
-  recipientId     Int?    @map("recipient_id")
+  recipientId     Int?     @map("recipient_id")
 
   recipient Employee?  @relation("reports", fields: [recipientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reporters Employee[] @relation("reports")
@@ -52,9 +52,9 @@ model Employee {
 }
 
 model Detail {
-  unitPrice Decimal @map("unit_price")
+  unitPrice Float   @map("unit_price")
   quantity  Int
-  discount  Decimal
+  discount  Float
   orderId   Int     @map("order_id")
   productId Int     @map("product_id")
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -67,22 +67,22 @@ model Detail {
 }
 
 model Order {
-  id             Int      @id @default(autoincrement())
-  orderDate      Int      @map("order_date")
-  requiredDate   Int      @map("required_date")
-  shippedDate    Int?     @map("shipped_date")
-  shipVia        Int      @map("ship_via")
-  freight        Decimal
-  shipName       String   @map("ship_name")
-  shipCity       String   @map("ship_city")
-  shipRegion     String?  @map("ship_region")
-  shipPostalCode String?  @map("ship_postal_code")
-  shipCountry    String   @map("ship_country")
-  customerId     Int      @map("customer_id")
-  employeeId     Int      @map("employee_id")
+  id             Int       @id @default(autoincrement())
+  orderDate      DateTime  @map("order_date")
+  requiredDate   DateTime  @map("required_date")
+  shippedDate    DateTime? @map("shipped_date")
+  shipVia        Int       @map("ship_via")
+  freight        Float
+  shipName       String    @map("ship_name")
+  shipCity       String    @map("ship_city")
+  shipRegion     String?   @map("ship_region")
+  shipPostalCode String?   @map("ship_postal_code")
+  shipCountry    String    @map("ship_country")
+  customerId     Int       @map("customer_id")
+  employeeId     Int       @map("employee_id")
   details        Detail[]
-  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  customer       Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("orders")
 }
@@ -91,7 +91,7 @@ model Product {
   id              Int      @id @default(autoincrement())
   name            String
   quantityPerUnit String   @map("qt_per_unit")
-  unitPrice       Decimal  @map("unit_price")
+  unitPrice       Float    @map("unit_price")
   unitsInStock    Int      @map("units_in_stock")
   unitsOnOrder    Int      @map("units_on_order")
   reorderLevel    Int      @map("reorder_level")
