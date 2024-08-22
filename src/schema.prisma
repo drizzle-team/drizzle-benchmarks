@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex","relationJoins"]
+  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex", "relationJoins"]
   binaryTargets   = ["native", "rhel-openssl-1.0.x"]
 }
 
@@ -46,6 +46,7 @@ model Employee {
   reporters       Employee[] @relation("reports")
   orders          Order[]
 
+  @@index([recipientId], map: "recepient_idx")
   @@map("employees")
 }
 
@@ -70,8 +71,6 @@ model Order {
   @@map("orders")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Detail {
   unitPrice Float   @map("unit_price")
   quantity  Int
@@ -98,6 +97,7 @@ model Product {
   details         Detail[]
   supplier        Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "products_supplier_id_suppliers_id_fk")
 
+  @@index([supplierId], map: "supplier_idx")
   @@map("products")
 }
 
