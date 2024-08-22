@@ -5,7 +5,7 @@ import http from 'k6/http';
 
 const data = new SharedArray('requests', function () {
   // return JSON.parse(open('./data/requests.json'));
-  return JSON.parse(open('../data/requests.json')).filter((it)=>!it.startsWith('/search'));
+  return JSON.parse(open('../data/requests.json')).filter((it) => !it.startsWith('/search'));
 });
 
 const host = __ENV.HOST || `http://192.168.31.144:3000`; // drizzle
@@ -17,6 +17,8 @@ export const options = {
     { duration: '15s', target: 200 },
     { duration: '5s', target: 400 },
     { duration: '15s', target: 400 },
+    { duration: '5s', target: 600 },
+    { duration: '15s', target: 600 },
     { duration: '5s', target: 800 },
     { duration: '15s', target: 800 },
     { duration: '5s', target: 1000 },
@@ -40,24 +42,21 @@ export const options = {
     { duration: '5s', target: 2800 },
     { duration: '15s', target: 2800 },
     { duration: '5s', target: 3000 },
-    { duration: '15s', target: 3000 },
-    { duration: '5s', target: 3200 },
-    { duration: '55s', target: 3200 },
+    { duration: '55s', target: 3000 },
   ],
 
   // vus: 2600,
   // duration: '60s',
   // iterations: 600000,
-  
 };
-  
+
 export default function () {
   const params = data[scenario.iterationInTest % data.length];
   const url = `${host}${params}`;
   // const url = `${host}${params}`;
 
   http.get(url, {
-    headers:{
+    headers: {
       Connection: 'keep-alive',
       'Keep-Alive': 'timeout=5, max=1000',
     },
