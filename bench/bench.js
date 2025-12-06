@@ -45,7 +45,7 @@ export const options = {
     { duration: '55s', target: 3000 },
   ],
 
-  // vus: 2600,
+  // vus: 2700,
   // duration: '60s',
   // iterations: 600000,
 };
