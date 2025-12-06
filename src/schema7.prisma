@@ -1,0 +1,118 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "./generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres", "relationJoins"]
+  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Customer {
+  id           Int     @id @default(autoincrement())
+  companyName  String  @map("company_name") @db.VarChar
+  contactName  String  @map("contact_name") @db.VarChar
+  contactTitle String  @map("contact_title") @db.VarChar
+  address      String  @db.VarChar
+  city         String  @db.VarChar
+  postalCode   String? @map("postal_code") @db.VarChar
+  region       String? @db.VarChar
+  country      String  @db.VarChar
+  phone        String  @db.VarChar
+  fax          String? @db.VarChar
+  orders       Order[]
+
+  @@map("customers")
+}
+
+model Employee {
+  id              Int        @id @default(autoincrement())
+  lastName        String     @map("last_name") @db.VarChar
+  firstName       String?    @map("first_name") @db.VarChar
+  title           String     @db.VarChar
+  titleOfCourtesy String     @map("title_of_courtesy") @db.VarChar
+  birthDate       DateTime   @map("birth_date") @db.Date
+  hireDate        DateTime   @map("hire_date") @db.Date
+  address         String     @db.VarChar
+  city            String     @db.VarChar
+  postalCode      String     @map("postal_code") @db.VarChar
+  country         String     @db.VarChar
+  homePhone       String     @map("home_phone") @db.VarChar
+  extension       Int
+  notes           String
+  recipientId     Int?       @map("recipient_id")
+  recipient       Employee?  @relation("reports", fields: [recipientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "employees_recipient_id_employees_id_fk")
+  reporters       Employee[] @relation("reports")
+  orders          Order[]
+
+  @@index([recipientId], map: "recepient_idx")
+  @@map("employees")
+}
+
+model Order {
+  id             Int       @id @default(autoincrement())
+  orderDate      DateTime  @map("order_date") @db.Date
+  requiredDate   DateTime  @map("required_date") @db.Date
+  shippedDate    DateTime? @map("shipped_date") @db.Date
+  shipVia        Int       @map("ship_via")
+  freight        Float
+  shipName       String    @map("ship_name") @db.VarChar
+  shipCity       String    @map("ship_city") @db.VarChar
+  shipRegion     String?   @map("ship_region") @db.VarChar
+  shipPostalCode String?   @map("ship_postal_code") @db.VarChar
+  shipCountry    String    @map("ship_country") @db.VarChar
+  customerId     Int       @map("customer_id")
+  employeeId     Int       @map("employee_id")
+  details        Detail[]
+  customer       Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "orders_customer_id_customers_id_fk")
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "orders_employee_id_employees_id_fk")
+
+  @@map("orders")
+}
+
+model Detail {
+  unitPrice Float   @map("unit_price")
+  quantity  Int
+  discount  Float
+  orderId   Int     @map("order_id")
+  productId Int     @map("product_id")
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_details_order_id_orders_id_fk")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_details_product_id_products_id_fk")
+
+  @@unique([orderId, productId])
+  @@map("order_details")
+}
+
+model Product {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar
+  quantityPerUnit String   @map("qt_per_unit") @db.VarChar
+  unitPrice       Float    @map("unit_price")
+  unitsInStock    Int      @map("units_in_stock")
+  unitsOnOrder    Int      @map("units_on_order")
+  reorderLevel    Int      @map("reorder_level")
+  discontinued    Int
+  supplierId      Int      @map("supplier_id")
+  details         Detail[]
+  supplier        Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "products_supplier_id_suppliers_id_fk")
+
+  @@index([supplierId], map: "supplier_idx")
+  @@map("products")
+}
+
+model Supplier {
+  id           Int       @id @default(autoincrement())
+  companyName  String    @map("company_name") @db.VarChar
+  contactName  String    @map("contact_name") @db.VarChar
+  contactTitle String    @map("contact_title") @db.VarChar
+  address      String    @db.VarChar
+  city         String    @db.VarChar
+  region       String?   @db.VarChar
+  postalCode   String    @map("postal_code") @db.VarChar
+  country      String    @db.VarChar
+  phone        String    @db.VarChar
+  products     Product[]
+
+  @@map("suppliers")
+}

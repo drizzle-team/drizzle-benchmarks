@@ -10,6 +10,7 @@
     "start:seed:sqlite": "tsx ./src/sqlite/seed.ts",
     "start:generate": "tsx ./src/generate.ts",
     "prepare:prisma": "prisma generate --schema src/schema.prisma",
+    "prepare:prisma7": "prisma generate --schema src/schema7.prisma",
     "prepare:prisma:sqlite": "prisma generate --schema src/sqlite/schema.prisma",
     "start:prisma": "tsx ./src/prisma-server.ts",
     "start:drizzle": "tsx ./src/drizzle-server.ts"
@@ -40,18 +41,20 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.1.1",
-    "@prisma/client": "5.18.0",
+    "@prisma/adapter-pg": "^7.1.0",
+    "@prisma/client": "7.1.0",
     "axios": "^1.4.0",
     "better-sqlite3": "^12.5.0",
     "concurrently": "^8.2.2",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.33.0",
+    "drizzle-orm-beta": "npm:drizzle-orm@1.0.0-beta.2-86f844e",
     "duckdb": "^1.0.0",
     "hono": "^3.4.1",
     "pg": "^8.11.2",
     "pg-native": "^3.1.0",
     "pidusage": "^3.0.2",
-    "prisma": "^5.18.0",
+    "prisma": "^7.1.0",
     "ramda": "^0.29.0"
   }
 }

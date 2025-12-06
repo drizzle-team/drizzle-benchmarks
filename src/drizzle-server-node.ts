@@ -19,7 +19,7 @@ import os from "os"
 
 const numCPUs = os.cpus().length;
 
-const pool = new pg.native.Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
+const pool = new pg.native!.Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
 const db = drizzle(pool, { schema, logger: false });
 
 const p1 = db.query.customers
