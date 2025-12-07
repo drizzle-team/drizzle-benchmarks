@@ -10,7 +10,6 @@
     "start:seed:sqlite": "tsx ./src/sqlite/seed.ts",
     "start:generate": "tsx ./src/generate.ts",
     "prepare:prisma": "prisma generate --schema src/schema.prisma",
-    "prepare:prisma7": "prisma generate --schema src/schema7.prisma",
     "prepare:prisma:sqlite": "prisma generate --schema src/sqlite/schema.prisma",
     "start:prisma": "tsx ./src/prisma-server.ts",
     "start:drizzle": "tsx ./src/drizzle-server.ts"
@@ -47,8 +46,7 @@
     "better-sqlite3": "^12.5.0",
     "concurrently": "^8.2.2",
     "dotenv": "^16.3.1",
-    "drizzle-orm": "^0.33.0",
-    "drizzle-orm-beta": "npm:drizzle-orm@1.0.0-beta.2-86f844e",
+    "drizzle-orm": "1.0.0-beta.2-86f844e",
     "duckdb": "^1.0.0",
     "hono": "^3.4.1",
     "pg": "^8.11.2",

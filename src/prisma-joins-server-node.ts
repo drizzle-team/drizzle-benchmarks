@@ -1,19 +1,23 @@
-import { serve } from "@hono/node-server";
-import { Hono } from "hono";
-import { PrismaClient } from "@prisma/client";
-import cpuUsage from "./cpu-usage";
+import { serve } from '@hono/node-server';
+import { Hono } from 'hono';
+import { PrismaClient } from './generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import cpuUsage from './cpu-usage';
 
 import cluster from 'cluster';
-import os from "os"
+import os from 'os';
 const numCPUs = os.cpus().length;
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({ adapter });
 
 const app = new Hono();
 app.route('', cpuUsage);
-app.get("/customers", async (c) => {
-  const limit = Number(c.req.query("limit"));
-  const offset = Number(c.req.query("offset"));
+app.get('/customers', async (c) => {
+  const limit = Number(c.req.query('limit'));
+  const offset = Number(c.req.query('offset'));
 
   const result = await prisma.customer.findMany({
     take: limit,
@@ -23,20 +27,20 @@ app.get("/customers", async (c) => {
   return c.json(result);
 });
 
-app.get("/customer-by-id", async (c) => {
+app.get('/customer-by-id', async (c) => {
   const result = await prisma.customer.findFirst({
     where: {
-      id: Number(c.req.query("id")!),
+      id: Number(c.req.query('id')!),
     },
   });
   return c.json(result);
 });
 
-app.get("/search-customer", async (c) => {
+app.get('/search-customer', async (c) => {
   const result = await prisma.customer.findMany({
     where: {
       companyName: {
-        search: `${c.req.query("term")}:*`,
+        search: `${c.req.query('term')}:*`,
       },
     },
   });
@@ -44,9 +48,9 @@ app.get("/search-customer", async (c) => {
   return c.json(result);
 });
 
-app.get("/employees", async (c) => {
-  const limit = Number(c.req.query("limit"));
-  const offset = Number(c.req.query("offset"));
+app.get('/employees', async (c) => {
+  const limit = Number(c.req.query('limit'));
+  const offset = Number(c.req.query('offset'));
 
   const result = await prisma.employee.findMany({
     take: limit,
@@ -55,12 +59,12 @@ app.get("/employees", async (c) => {
   return c.json(result);
 });
 
-app.get("/employee-with-recipient", async (c) => {
+app.get('/employee-with-recipient', async (c) => {
   const result = await prisma.employee.findUnique({
     where: {
-      id: Number(c.req.query("id")!),
+      id: Number(c.req.query('id')!),
     },
-    relationLoadStrategy: "join",
+    relationLoadStrategy: 'join',
     include: {
       recipient: true,
     },
@@ -68,9 +72,9 @@ app.get("/employee-with-recipient", async (c) => {
   return c.json([result]);
 });
 
-app.get("/suppliers", async (c) => {
-  const limit = Number(c.req.query("limit"));
-  const offset = Number(c.req.query("offset"));
+app.get('/suppliers', async (c) => {
+  const limit = Number(c.req.query('limit'));
+  const offset = Number(c.req.query('offset'));
 
   const result = await prisma.supplier.findMany({
     take: limit,
@@ -79,18 +83,18 @@ app.get("/suppliers", async (c) => {
   return c.json(result);
 });
 
-app.get("/supplier-by-id", async (c) => {
+app.get('/supplier-by-id', async (c) => {
   const result = await prisma.supplier.findUnique({
     where: {
-      id: Number(c.req.query("id")!),
+      id: Number(c.req.query('id')!),
     },
   });
   return c.json(result);
 });
 
-app.get("/products", async (c) => {
-  const limit = Number(c.req.query("limit"));
-  const offset = Number(c.req.query("offset"));
+app.get('/products', async (c) => {
+  const limit = Number(c.req.query('limit'));
+  const offset = Number(c.req.query('offset'));
 
   const result = await prisma.product.findMany({
     take: limit,
@@ -99,12 +103,12 @@ app.get("/products", async (c) => {
   return c.json(result);
 });
 
-app.get("/product-with-supplier", async (c) => {
+app.get('/product-with-supplier', async (c) => {
   const result = await prisma.product.findUnique({
     where: {
-      id: Number(c.req.query("id")!),
+      id: Number(c.req.query('id')!),
     },
-    relationLoadStrategy: "join",
+    relationLoadStrategy: 'join',
     include: {
       supplier: true,
     },
@@ -112,11 +116,11 @@ app.get("/product-with-supplier", async (c) => {
   return c.json([result]);
 });
 
-app.get("/search-product", async (c) => {
+app.get('/search-product', async (c) => {
   const result = await prisma.product.findMany({
     where: {
       name: {
-        search: `${c.req.query("term")}:*`,
+        search: `${c.req.query('term')}:*`,
       },
     },
   });
@@ -124,19 +128,19 @@ app.get("/search-product", async (c) => {
   return c.json(result);
 });
 
-app.get("/orders-with-details", async (c) => {
-  const limit = Number(c.req.query("limit"));
-  const offset = Number(c.req.query("offset"));
+app.get('/orders-with-details', async (c) => {
+  const limit = Number(c.req.query('limit'));
+  const offset = Number(c.req.query('offset'));
 
   const res = await prisma.order.findMany({
-    relationLoadStrategy: "join",
+    relationLoadStrategy: 'join',
     include: {
       details: true,
     },
     take: limit,
     skip: offset,
     orderBy: {
-      id: "asc",
+      id: 'asc',
     },
   });
 
@@ -148,27 +152,21 @@ app.get("/orders-with-details", async (c) => {
       shipCity: item.shipCity,
       shipCountry: item.shipCountry,
       productsCount: item.details.length,
-      quantitySum: item.details.reduce(
-        (sum, deteil) => (sum += +deteil.quantity),
-        0
-      ),
-      totalPrice: item.details.reduce(
-        (sum, deteil) => (sum += +deteil.quantity * +deteil.unitPrice),
-        0
-      ),
+      quantitySum: item.details.reduce((sum, deteil) => (sum += +deteil.quantity), 0),
+      totalPrice: item.details.reduce((sum, deteil) => (sum += +deteil.quantity * +deteil.unitPrice), 0),
     };
   });
   return c.json(result);
 });
 
-app.get("/order-with-details", async (c) => {
+app.get('/order-with-details', async (c) => {
   const res = await prisma.order.findMany({
-    relationLoadStrategy: "join",
+    relationLoadStrategy: 'join',
     include: {
       details: true,
     },
     where: {
-      id: Number(c.req.query("id")!),
+      id: Number(c.req.query('id')!),
     },
   });
 
@@ -180,26 +178,20 @@ app.get("/order-with-details", async (c) => {
       shipCity: item.shipCity,
       shipCountry: item.shipCountry,
       productsCount: item.details.length,
-      quantitySum: item.details.reduce(
-        (sum, detail) => (sum += detail.quantity),
-        0
-      ),
-      totalPrice: item.details.reduce(
-        (sum, detail) => (sum += detail.quantity * detail.unitPrice),
-        0
-      ),
+      quantitySum: item.details.reduce((sum, detail) => (sum += detail.quantity), 0),
+      totalPrice: item.details.reduce((sum, detail) => (sum += detail.quantity * detail.unitPrice), 0),
     };
   });
 
   return c.json(result);
 });
 
-app.get("/order-with-details-and-products", async (c) => {
+app.get('/order-with-details-and-products', async (c) => {
   const result = await prisma.order.findMany({
     where: {
-      id: Number(c.req.query("id")!),
+      id: Number(c.req.query('id')!),
     },
-    relationLoadStrategy: "join",
+    relationLoadStrategy: 'join',
     include: {
       details: {
         include: {
@@ -216,13 +208,13 @@ if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} is running`);
 
   //Fork workers
-  for (let i=0; i < 2; i++) {
+  for (let i = 0; i < 2; i++) {
     cluster.fork();
   }
 
   cluster.on('exit', (worker) => {
     console.log(`worker ${worker.process.pid} died`);
-  })
+  });
 } else {
   serve({
     fetch: app.fetch,

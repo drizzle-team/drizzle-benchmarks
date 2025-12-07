@@ -1,12 +1,12 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex", "relationJoins"]
+  provider        = "prisma-client"
+  output          = "./generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres", "relationJoins"]
   binaryTargets   = ["native", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Customer {
