@@ -3,14 +3,14 @@ import { Hono } from 'hono';
 import { PrismaClient } from './generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import cpuUsage from './cpu-usage';
+import pg from 'pg';
 
 import cluster from 'cluster';
 import os from 'os';
 const numCPUs = os.cpus().length;
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
+const pool = new pg.native!.Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const app = new Hono();
