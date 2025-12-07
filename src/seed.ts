@@ -111,10 +111,10 @@ async function main(size: keyof typeof sizes) {
 
   try {
     const client = postgres(process.env.DATABASE_URL!);
-    const db = drizzle(client, { logger: false });
+    const db = drizzle({ client, logger: false });
 
     const migrationsClient = postgres(process.env.DATABASE_URL!, { max: 1 });
-    const migrationDB: PostgresJsDatabase = drizzle(migrationsClient);
+    const migrationDB: PostgresJsDatabase = drizzle({ client: migrationsClient });
     await migrate(migrationDB, { migrationsFolder: "drizzle" });
 
     console.log("seeding customers...");
