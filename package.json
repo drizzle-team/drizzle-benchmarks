@@ -30,7 +30,7 @@
     "@types/ramda": "^0.29.3",
     "deep-diff": "^1.0.2",
     "dockerode": "^3.3.5",
-    "drizzle-kit": "^0.24.0",
+    "drizzle-kit": "1.0.0-beta.2-86f844e",
     "esbuild": "^0.19.2",
     "get-port": "^7.0.0",
     "k6": "^0.0.0",
@@ -39,7 +39,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@hono/node-server": "^1.1.1",
+    "@hono/node-server": "^1.19.6",
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "7.1.0",
     "axios": "^1.4.0",
@@ -48,9 +48,8 @@
     "dotenv": "^16.3.1",
     "drizzle-orm": "1.0.0-beta.2-86f844e",
     "duckdb": "^1.0.0",
-    "hono": "^3.4.1",
-    "pg": "^8.11.2",
-    "pg-native": "^3.1.0",
+    "hono": "^4.10.7",
+    "pg": "^8.16.3",
     "pidusage": "^3.0.2",
     "prisma": "^7.1.0",
     "ramda": "^0.29.0"

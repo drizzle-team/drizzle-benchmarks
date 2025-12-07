@@ -1,19 +1,19 @@
 import { Hono } from 'hono';
-import { drizzle } from 'drizzle-orm/bun-sql';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { relations } from './relations';
 import * as schema from './schema';
 import { eq, sql, asc } from 'drizzle-orm';
 import cpuUsage from './cpu-usage';
 import { customers, details, employees, orders, products, suppliers } from './schema';
 import 'dotenv/config';
+import pg from 'pg';
 import cluster from 'cluster';
 import os from 'os';
 
 const numCPUs = os.cpus().length;
 
-const client = new Bun.SQL(process.env.DATABASE_URL!, {
-  max: numCPUs * 2,
-});
+// const client = new Bun.SQL(process.env.DATABASE_URL!);
+const client = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 4, min: 4 });
 const db = drizzle({ client, schema, relations, logger: false });
 
 const p1 = db.query.customers

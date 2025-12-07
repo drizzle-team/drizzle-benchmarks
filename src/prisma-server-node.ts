@@ -3,14 +3,16 @@ import { Hono } from 'hono';
 import { PrismaClient } from './generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import cpuUsage from './cpu-usage';
+import 'dotenv/config';
 import pg from 'pg';
 
 import cluster from 'cluster';
 import os from 'os';
 const numCPUs = os.cpus().length;
 
-const pool = new pg.native!.Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
-const adapter = new PrismaPg(pool);
+// const pool = new pg.native!.Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
+const adapter = new PrismaPg({connectionString: process.env.DATABASE_URL});
+// const adapter = new PrismaPg(pool); // when pool provided - doesnt work
 const prisma = new PrismaClient({ adapter });
 
 const app = new Hono();
@@ -203,7 +205,7 @@ if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} is running`);
 
   //Fork workers
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < 2; i++) {
     cluster.fork();
   }
 
