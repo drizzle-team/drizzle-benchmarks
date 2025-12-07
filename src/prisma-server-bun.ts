@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { PrismaClient } from './generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import cpuUsage from './cpu-usage';
+import cluster from 'cluster';
 import os from 'os';
 
 const adapter = new PrismaPg({
@@ -195,8 +196,21 @@ app.get('/order-with-details-and-products', async (c) => {
   return c.json(result);
 });
 
-export default {
-  fetch: app.fetch,
-  port: 3001,
-  reusePort: true,
-};
+if (cluster.isPrimary) {
+  console.log(`Primary ${process.pid} is running`);
+  //Fork workers
+  for (let i = 0; i < 2; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker) => {
+    console.log(`worker ${worker.process.pid} died`);
+  });
+} else {
+  Bun.serve({
+    fetch: app.fetch,
+    port: 3001,
+    reusePort: true,
+  });
+  console.log(`Worker ${process.pid} started`);
+}
