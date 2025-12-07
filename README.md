@@ -29,7 +29,7 @@ DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
 
 main("micro"); // nano | micro
 ```
-4. Make sure you have Node version 18 installed or above, we've used Node v22. You can use [`nvm use 22`](https://github.com/nvm-sh/nvm) command
+4. Make sure you have Node version 18 installed or above, we've used Node v24. You can use [`nvm use 24`](https://github.com/nvm-sh/nvm) command
 5. Start Drizzle/Prisma server:
 ```bash
 ## Drizzle
@@ -43,9 +43,16 @@ pnpm start:prisma
 ## Prepare testing machine
 1. Generate a list of http requests with `pnpm start:generate`. It will output a list of http requests to be run on the tested server | `./data/requests.json`
 2. Install [k6 load tester](https://k6.io/)
-3. Configure tested server url in `./k6.js` file
-```js
-// const host = `http://192.168.31.144:3000`; // drizzle
-const host = `http://192.168.31.144:3001`; // prisma
+3. Run benchmarks 🚀  
+Use the built-in benchmark runner:
+```bash
+tsx bench/index --host http://192.168.31.144:3000 --name my-bench --folder results
+
+http://192.168.31.144:3000 // drizzle
+http://192.168.31.144:3001 // prisma
 ```
-4. Run tests with `k6 run bench.js` 🚀
+4. Prepare final combined results  
+After benchmarks finish, merge all outputs into a single JSON file:
+```bash
+tsx bench/prepare --folder results
+```
