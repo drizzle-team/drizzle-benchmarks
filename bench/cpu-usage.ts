@@ -39,8 +39,23 @@ fs.writeFileSync(filename, 'core1,core2,core3,core4,timestamp\n', {
   flag: 'w', // 'w' means create a new file only if it does not exist
 });
 
+async function withRetries<T>(fn: () => Promise<T>, retries = 5): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (attempt === retries) throw err;
+    }
+  }
+
+  throw lastError;
+}
+
 setInterval(() => {
-  fetch(`${host}/stats`)
+  withRetries(() => fetch(`${host}/stats`))
     .then((res) => res.json() as Promise<number[]>)
     .then((data) => {
       const [core1, core2, core3, core4] = data;

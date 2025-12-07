@@ -1,4 +1,4 @@
-import { Database } from 'duckdb';
+import { DuckDBInstance } from '@duckdb/node-api';
 import fs from 'fs';
 import { parseArgs } from 'util';
 
@@ -20,17 +20,19 @@ if (!folder) {
   throw new Error('folder is required');
 }
 
-const db = new Database(':memory:');
+const main = async () => {
+  const instance = await DuckDBInstance.create(':memory:');
+  const connection = await instance.connect();
 
-const files = fs
-  .readdirSync(folder)
-  .filter((file) => file.endsWith('.parquet'))
-  .map((file) => file.replace('.parquet', ''));
+  const files = fs
+    .readdirSync(folder)
+    .filter((file) => file.endsWith('.parquet'))
+    .map((file) => file.replace('.parquet', ''));
 
-const data: Record<string, any[]> = {};
-files.forEach((testName) => {
-  db.all(
-    `
+  const data: Record<string, any[]> = {};
+  for (const testName of files) {
+    const result = await connection.run(
+      `
       WITH cpu_usage AS (
         SELECT
           time_bucket(INTERVAL '1s', epoch_ms(timestamp)) AS "time",
@@ -91,19 +93,18 @@ files.forEach((testName) => {
       JOIN req_duration ON epoch_ms(cpu_usage.time) = epoch_ms(req_duration.time)
       ORDER BY cpu_usage.time ASC;
     `,
-    (err, res) => {
-      console.log(`Processing ${testName}...`);
-      if (err) {
-        console.error(err);
-        return;
-      }
-      data[testName] = res;
+    );
 
-      if (Object.keys(data).length === files.length) {
-        console.log('All data processed');
-        // Do something with the data
-        fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-      }
-    },
-  );
+    console.log(`Processing ${testName}...`);
+    data[testName] = await result.getRowObjectsJS();
+  }
+
+  console.log('All data processed');
+  // Do something with the data
+  fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
+};
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
 });

@@ -39,6 +39,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@duckdb/node-api": "1.4.2-r.1",
     "@hono/node-server": "^1.19.6",
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "7.1.0",

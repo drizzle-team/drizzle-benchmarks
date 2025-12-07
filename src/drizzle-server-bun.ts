@@ -158,7 +158,7 @@ const p13 = db.query.orders
     },
     where: {
       id: sql.placeholder('id'),
-    },
+    }
   })
   .prepare('p13');
 
