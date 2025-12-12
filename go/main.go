@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
+	"math"
 	"os"
 	"os/signal"
 	"perf-drizzle/go/db"
+	"sync"
 	"syscall"
 	"unsafe"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v3"
+	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/valyala/fasthttp"
 )
 
@@ -31,6 +34,11 @@ func getInt32(c fiber.Ctx, key string) int32 {
 	return int32(n)
 }
 
+type CPUData struct {
+	Usage float64
+	Total float64
+}
+
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -48,6 +56,55 @@ func main() {
 	app := fiber.New(fiber.Config{
 		JSONEncoder: sonic.ConfigDefault.Marshal,
 		JSONDecoder: sonic.ConfigDefault.Unmarshal,
+	})
+
+	var (
+		temp []CPUData
+		mu   sync.Mutex
+	)
+
+	app.Get("/stats", func(c fiber.Ctx) error {
+		times, err := cpu.Times(true)
+		if err != nil {
+			return err
+		}
+
+		currentUsage := make([]CPUData, len(times))
+		for i, t := range times {
+			usage := t.User + t.Nice + t.System + t.Irq
+			total := usage + t.Idle
+
+			currentUsage[i] = CPUData{
+				Usage: usage,
+				Total: total,
+			}
+		}
+
+		result := []int{}
+
+		mu.Lock()
+		if len(temp) > 0 {
+			for i, cpu := range currentUsage {
+				if i >= len(temp) {
+					break
+				}
+
+				usageDiff := cpu.Usage - temp[i].Usage
+				totalDiff := cpu.Total - temp[i].Total
+
+				if totalDiff > 0 {
+					percentage := (100 * usageDiff) / totalDiff
+					result = append(result, int(math.Round(percentage)))
+				} else {
+					result = append(result, 0)
+				}
+			}
+		}
+
+		temp = currentUsage
+		mu.Unlock()
+
+		return c.JSON(result)
 	})
 
 	app.Get("/customers", func(c fiber.Ctx) error {
