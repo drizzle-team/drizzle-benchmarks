@@ -23,6 +23,7 @@ func NewDatabase(databaseUrl string) (*Client, error) {
 	}
 
 	config.MaxConns = 200
+	config.MinConns = 200
 	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
 		sonicCodec := &pgtype.JSONCodec{
 			Marshal:   sonic.Marshal,
