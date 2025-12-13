@@ -22,16 +22,16 @@ esbuild.buildSync({
   external: ['esbuild', 'pg-native'],
 });
 
-esbuild.buildSync({
-  entryPoints: ['./src/prisma-joins-server-node.ts'],
-  bundle: true,
-  minify: true,
-  outfile: 'dist/prisma-joins.js',
-  format: 'cjs',
-  target: 'node24',
-  platform: 'node',
-  external: ['esbuild', 'pg-native'],
-});
+// esbuild.buildSync({
+//   entryPoints: ['./src/prisma-joins-server-node.ts'],
+//   bundle: true,
+//   minify: true,
+//   outfile: 'dist/prisma-joins.js',
+//   format: 'cjs',
+//   target: 'node24',
+//   platform: 'node',
+//   external: ['esbuild', 'pg-native'],
+// });
 
 // esbuild.buildSync({
 //   entryPoints: ['./src/sqlite/drizzle-server-node.ts'],
