@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/valyala/fasthttp"
+	_ "go.uber.org/automaxprocs"
 )
 
 func b2s(b []byte) string {
