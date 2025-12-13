@@ -3,3 +3,4 @@ test
 results
 dist
 data.json
+go-server/server
