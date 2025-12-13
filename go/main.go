@@ -54,8 +54,8 @@ func main() {
 	}
 
 	app := fiber.New(fiber.Config{
-		JSONEncoder: sonic.ConfigDefault.Marshal,
-		JSONDecoder: sonic.ConfigDefault.Unmarshal,
+		JSONEncoder: sonic.ConfigFastest.Marshal,
+		JSONDecoder: sonic.ConfigFastest.Unmarshal,
 	})
 
 	var (
