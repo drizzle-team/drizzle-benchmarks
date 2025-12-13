@@ -54,8 +54,11 @@ func main() {
 	}
 
 	app := fiber.New(fiber.Config{
-		JSONEncoder: sonic.ConfigFastest.Marshal,
-		JSONDecoder: sonic.ConfigFastest.Unmarshal,
+		JSONEncoder:   sonic.ConfigFastest.Marshal,
+		JSONDecoder:   sonic.ConfigFastest.Unmarshal,
+		CaseSensitive: true,
+		StrictRouting: true,
+		ServerHeader:  "",
 	})
 
 	var (
