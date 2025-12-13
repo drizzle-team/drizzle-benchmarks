@@ -34,6 +34,13 @@ func getInt32(c fiber.Ctx, key string) int32 {
 	return int32(n)
 }
 
+var jsonEncoder = sonic.ConfigFastest
+
+func streamJSON(c fiber.Ctx, v interface{}) error {
+	w := c.Response().BodyWriter()
+	return jsonEncoder.NewEncoder(w).Encode(v)
+}
+
 type CPUData struct {
 	Usage float64
 	Total float64
@@ -119,7 +126,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(rows)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, rows)
 	})
 
 	app.Get("/customer-by-id", func(c fiber.Ctx) error {
@@ -128,7 +136,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(row)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, row)
 	})
 
 	app.Get("/search-customer", func(c fiber.Ctx) error {
@@ -139,7 +148,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(rows)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, rows)
 	})
 
 	app.Get("/employees", func(c fiber.Ctx) error {
@@ -151,7 +161,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(rows)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, rows)
 	})
 
 	app.Get("/employee-with-recipient", func(c fiber.Ctx) error {
@@ -160,7 +171,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(row)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, row)
 	})
 
 	app.Get("/suppliers", func(c fiber.Ctx) error {
@@ -172,7 +184,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(rows)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, rows)
 	})
 
 	app.Get("/supplier-by-id", func(c fiber.Ctx) error {
@@ -181,7 +194,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(row)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, row)
 	})
 
 	app.Get("/products", func(c fiber.Ctx) error {
@@ -193,7 +207,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(rows)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, rows)
 	})
 
 	app.Get("/product-with-supplier", func(c fiber.Ctx) error {
@@ -202,7 +217,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(row)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, row)
 	})
 
 	app.Get("/search-product", func(c fiber.Ctx) error {
@@ -213,7 +229,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(rows)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, rows)
 	})
 
 	app.Get("/orders-with-details", func(c fiber.Ctx) error {
@@ -225,7 +242,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(rows)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, rows)
 	})
 
 	app.Get("/order-with-details", func(c fiber.Ctx) error {
@@ -234,7 +252,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(row)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, row)
 	})
 
 	app.Get("/order-with-details-and-products", func(c fiber.Ctx) error {
@@ -243,7 +262,8 @@ func main() {
 			return err
 		}
 
-		return c.JSON(row)
+		c.Set("Content-Type", "application/json")
+		return streamJSON(c, row)
 	})
 
 	go func() {
