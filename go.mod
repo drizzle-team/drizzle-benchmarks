@@ -8,6 +8,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/shirou/gopsutil/v4 v4.25.11
 	github.com/valyala/fasthttp v1.68.0
+	go.uber.org/automaxprocs v1.6.0
 )
 
 require (
