@@ -5,6 +5,7 @@ import { parseArgs } from 'util';
 // const host = `http://192.168.31.144:3000`; // drizzle
 // const host = `http://192.168.31.144:3001`; // prisma
 // const host = `http://192.168.31.144:3002`; // go
+// const host = `http://192.168.31.144:3003`; // rust
 
 const {
   values: { host, name, folder },

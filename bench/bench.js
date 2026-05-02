@@ -11,7 +11,7 @@ const data = new SharedArray('requests', function () {
 const host = __ENV.HOST || `http://192.168.31.144:3000`; // drizzle
 // const host = `http://192.168.31.144:3001`; // prisma
 // const host = `http://192.168.31.144:3002`; // go
-
+// const host = `http://192.168.31.144:3003`; // rust
 export const options = {
   stages: [
     { duration: '5s', target: 200 },
