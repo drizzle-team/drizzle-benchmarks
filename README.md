@@ -1,5 +1,5 @@
 # Drizzle Benchmarks
-Drizzle has always been fast, we just wanted you to have a meaningful [benchmarks experience](orm.drizzle.team#benchmarks)  
+Drizzle has always been fast, we just wanted you to have a meaningful [benchmarks experience](https://orm.drizzle.team/benchmarks)  
 
 We ran our benchmarks on 2 separate machines, so that observer does not influence results. For database we're using PostgreSQL instance with 42MB of E-commerce data(~370k records).  
 K6 benchmarking instance lives on MacBook Air and makes [1M prepared requests](./data/requests.json) through 1GB ethernet to Lenovo M720q with Intel Core i3-9100T and 32GB of RAM.
