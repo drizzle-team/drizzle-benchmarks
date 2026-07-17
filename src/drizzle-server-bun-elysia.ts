@@ -11,7 +11,7 @@ import os from 'os';
 // const client = new Bun.SQL(process.env.DATABASE_URL!, { max: 20});
 const db = drizzle({ connection:{
   url: process.env.DATABASE_URL!,
-}, relations, logger: false, useJitMappers: true });
+}, relations, logger: false, jit: true });
 
 const p1 = db.query.customers
   .findMany({
@@ -116,7 +116,7 @@ const p11 = db
     shipCountry: orders.shipCountry,
     productsCount: sql<number>`count(${details.productId})::int`,
     quantitySum: sql<number>`sum(${details.quantity})::int`,
-    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})`,
   })
   .from(orders)
   .leftJoin(details, eq(details.orderId, orders.id))
@@ -135,7 +135,7 @@ const p12 = db
     shipCountry: orders.shipCountry,
     productsCount: sql<number>`count(${details.productId})::int`,
     quantitySum: sql<number>`sum(${details.quantity})::int`,
-    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})`,
   })
   .from(orders)
   .leftJoin(details, eq(details.orderId, orders.id))

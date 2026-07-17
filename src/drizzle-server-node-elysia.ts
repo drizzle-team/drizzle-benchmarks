@@ -3,17 +3,16 @@ import { Elysia } from 'elysia';
 import cluster from 'cluster';
 import 'dotenv/config';
 import { asc, eq, sql } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle } from 'drizzle-orm/postgres';
 import os from 'os';
-import pg from 'pg';
+import {createPool} from 'minipg';
 import { relations } from './relations';
 import { details, orders } from './schema';
 
 console.log(process.env.DATABASE_URL);
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, min: 10, max: 10 });
-
-const db = drizzle({ client: pool, relations, useJitMappers: false });
+const pool = createPool({ url: process.env.DATABASE_URL!, max: 10 });
+const db = drizzle({ client: pool, relations });
 
 const p1 = db.query.customers
   .findMany({
@@ -118,7 +117,7 @@ const p11 = db
     shipCountry: orders.shipCountry,
     productsCount: sql<number>`count(${details.productId})::int`,
     quantitySum: sql<number>`sum(${details.quantity})::int`,
-    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})`,
   })
   .from(orders)
   .leftJoin(details, eq(details.orderId, orders.id))
@@ -137,7 +136,7 @@ const p12 = db
     shipCountry: orders.shipCountry,
     productsCount: sql<number>`count(${details.productId})::int`,
     quantitySum: sql<number>`sum(${details.quantity})::int`,
-    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})`,
   })
   .from(orders)
   .leftJoin(details, eq(details.orderId, orders.id))

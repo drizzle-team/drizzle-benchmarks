@@ -1,0 +1,8 @@
+allowBuilds:
+  '@prisma/engines': true
+  better-sqlite3: true
+  cpu-features: true
+  duckdb: false
+  esbuild: true
+  prisma: true
+  ssh2: true

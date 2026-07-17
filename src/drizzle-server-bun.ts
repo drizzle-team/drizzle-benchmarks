@@ -14,7 +14,7 @@ const numCPUs =  os.cpus().length;
 const client = new Bun.SQL(process.env.DATABASE_URL!, { bigint: true, prepare: true });
 
 // const client = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 20 });
-const db = drizzle({ client, relations, useJitMappers: true, logger:false });
+const db = drizzle({ client, relations, jit: true, logger:false });
 
 const p1 = db.query.customers
   .findMany({
@@ -119,7 +119,7 @@ const p11 = db
     shipCountry: orders.shipCountry,
     productsCount: sql<number>`count(${details.productId})::int`,
     quantitySum: sql<number>`sum(${details.quantity})::int`,
-    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})`,
   })
   .from(orders)
   .leftJoin(details, eq(details.orderId, orders.id))
@@ -138,7 +138,7 @@ const p12 = db
     shipCountry: orders.shipCountry,
     productsCount: sql<number>`count(${details.productId})::int`,
     quantitySum: sql<number>`sum(${details.quantity})::int`,
-    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})::real`,
+    totalPrice: sql<number>`sum(${details.quantity} * ${details.unitPrice})`,
   })
   .from(orders)
   .leftJoin(details, eq(details.orderId, orders.id))

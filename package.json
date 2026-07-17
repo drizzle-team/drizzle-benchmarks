@@ -27,10 +27,9 @@
     "@types/k6": "^0.45.2",
     "@types/pg": "^8.10.2",
     "@types/pidusage": "^2.0.2",
-    "@types/ramda": "^0.29.3",
     "deep-diff": "^1.0.2",
     "dockerode": "^3.3.5",
-    "drizzle-kit": "1.0.0-beta.23-0bbcaa2",
+    "drizzle-kit": "1.0.0-rc.4",
     "esbuild": "^0.19.2",
     "get-port": "^7.0.0",
     "k6": "^0.0.0",
@@ -47,13 +46,14 @@
     "better-sqlite3": "^12.5.0",
     "concurrently": "^8.2.2",
     "dotenv": "^16.3.1",
-    "drizzle-orm": "1.0.0-beta.23-0bbcaa2",
+    "drizzle-orm": "1.0.0-rc.4-de6c356",
+    "drizzle-seed": "1.0.0-rc.4",
     "duckdb": "^1.0.0",
     "elysia": "^1.4.28",
     "hono": "^4.12.15",
+    "minipg": "file:minipg.tgz",
     "pg": "^8.20.0",
     "pidusage": "^3.0.2",
-    "prisma": "^7.8.0",
-    "ramda": "^0.29.0"
+    "prisma": "^7.8.0"
   }
 }

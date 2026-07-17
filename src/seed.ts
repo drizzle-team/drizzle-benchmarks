@@ -2,16 +2,11 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import {
-  CustomerInsert,
   customers,
-  DetailInsert,
   details,
   employees,
-  OrderInsert,
   orders,
-  ProductInsert,
   products,
-  SupplierInsert,
   suppliers,
 } from "./schema";
 import { faker } from "@faker-js/faker";
@@ -118,7 +113,7 @@ async function main(size: keyof typeof sizes) {
     await migrate(migrationDB, { migrationsFolder: "drizzle" });
 
     console.log("seeding customers...");
-    let customerModels: CustomerInsert[] = [];
+    let customerModels: typeof customers.$inferInsert[] = [];
     for (let customerId = 1; customerId <= config.customers; customerId++) {
       customerModels.push({
         companyName: faker.company.name(),
@@ -169,7 +164,7 @@ async function main(size: keyof typeof sizes) {
     console.log("locading orders...");
     let startOrderDate = new Date("2016");
 
-    let orderModels: OrderInsert[] = [];
+    let orderModels: typeof orders.$inferInsert[] = [];
     for (let orderId = 1; orderId <= config.orders; orderId++) {
       const orderDate = startOrderDate;
 
@@ -207,7 +202,7 @@ async function main(size: keyof typeof sizes) {
     }
 
     console.log("seeding suppliers...");
-    let supplierModels: SupplierInsert[] = [];
+    let supplierModels: typeof suppliers.$inferInsert[] = [];
     for (let supplierId = 1; supplierId <= config.suppliers; supplierId++) {
       supplierModels.push({
         companyName: faker.company.name(),
@@ -232,7 +227,7 @@ async function main(size: keyof typeof sizes) {
     }
 
     console.log("seeding products...");
-    let productModels: ProductInsert[] = [];
+    let productModels: typeof products.$inferInsert[] = [];
     const productPrices = new Map<number, number>();
     for (let productId = 1; productId <= config.products; productId++) {
       const unitPrice = getRandomInt(0, 1)
@@ -263,7 +258,7 @@ async function main(size: keyof typeof sizes) {
     }
 
     console.log("seeding order details...");
-    let detailModels: DetailInsert[] = [];
+    let detailModels: typeof details.$inferInsert[] = [];
     const productCount = weightedRandom([
       { weight: 0.6, value: [1, 2, 3, 4] },
       { weight: 0.2, value: [5, 6, 7, 8, 9, 10] },
