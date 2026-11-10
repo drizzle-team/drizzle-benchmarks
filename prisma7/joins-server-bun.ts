@@ -1,9 +1,10 @@
 import { Hono } from 'hono';
 import { PrismaClient } from './generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import cpuUsage from './cpu-usage';
+import cpuUsage from '../src/cpu-usage';
 import cluster from 'cluster';
 import os from 'os';
+const numCPUs = os.cpus().length;
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
@@ -61,6 +62,7 @@ app.get('/employee-with-recipient', async (c) => {
     where: {
       id: Number(c.req.query('id')!),
     },
+    relationLoadStrategy: 'join',
     include: {
       recipient: true,
     },
@@ -104,6 +106,7 @@ app.get('/product-with-supplier', async (c) => {
     where: {
       id: Number(c.req.query('id')!),
     },
+    relationLoadStrategy: 'join',
     include: {
       supplier: true,
     },
@@ -128,6 +131,7 @@ app.get('/orders-with-details', async (c) => {
   const offset = Number(c.req.query('offset'));
 
   const res = await prisma.order.findMany({
+    relationLoadStrategy: 'join',
     include: {
       details: true,
     },
@@ -155,6 +159,7 @@ app.get('/orders-with-details', async (c) => {
 
 app.get('/order-with-details', async (c) => {
   const res = await prisma.order.findMany({
+    relationLoadStrategy: 'join',
     include: {
       details: true,
     },
@@ -184,6 +189,7 @@ app.get('/order-with-details-and-products', async (c) => {
     where: {
       id: Number(c.req.query('id')!),
     },
+    relationLoadStrategy: 'join',
     include: {
       details: {
         include: {
@@ -198,8 +204,8 @@ app.get('/order-with-details-and-products', async (c) => {
 
 if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} is running`);
-  //Fork workers
-  for (let i = 0; i < 2; i++) {
+  // Fork workers,
+  for (let i = 0; i < numCPUs / 2; i++) {
     cluster.fork();
   }
 

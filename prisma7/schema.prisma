@@ -89,7 +89,7 @@ model Detail {
 model Product {
   id              Int      @id @default(autoincrement())
   name            String   @db.VarChar
-  quantityPerUnit String   @map("qt_per_unit") @db.VarChar
+  quantityPerUnit String   @map("quantity_per_unit") @db.VarChar
   unitPrice       Float    @map("unit_price")
   unitsInStock    Int      @map("units_in_stock")
   unitsOnOrder    Int      @map("units_on_order")

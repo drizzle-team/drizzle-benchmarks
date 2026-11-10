@@ -2,15 +2,17 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { PrismaClient } from './generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import cpuUsage from './cpu-usage';
+import cpuUsage from '../src/cpu-usage';
+import 'dotenv/config';
+import pg from 'pg';
 
 import cluster from 'cluster';
 import os from 'os';
 const numCPUs = os.cpus().length;
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
+// const pool = new pg.native!.Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
+const adapter = new PrismaPg({connectionString: process.env.DATABASE_URL});
+// const adapter = new PrismaPg(pool); // when pool provided - doesnt work
 const prisma = new PrismaClient({ adapter });
 
 const app = new Hono();
@@ -64,7 +66,6 @@ app.get('/employee-with-recipient', async (c) => {
     where: {
       id: Number(c.req.query('id')!),
     },
-    relationLoadStrategy: 'join',
     include: {
       recipient: true,
     },
@@ -108,7 +109,6 @@ app.get('/product-with-supplier', async (c) => {
     where: {
       id: Number(c.req.query('id')!),
     },
-    relationLoadStrategy: 'join',
     include: {
       supplier: true,
     },
@@ -133,7 +133,6 @@ app.get('/orders-with-details', async (c) => {
   const offset = Number(c.req.query('offset'));
 
   const res = await prisma.order.findMany({
-    relationLoadStrategy: 'join',
     include: {
       details: true,
     },
@@ -161,7 +160,6 @@ app.get('/orders-with-details', async (c) => {
 
 app.get('/order-with-details', async (c) => {
   const res = await prisma.order.findMany({
-    relationLoadStrategy: 'join',
     include: {
       details: true,
     },
@@ -191,7 +189,6 @@ app.get('/order-with-details-and-products', async (c) => {
     where: {
       id: Number(c.req.query('id')!),
     },
-    relationLoadStrategy: 'join',
     include: {
       details: {
         include: {
