@@ -13,7 +13,7 @@ console.log(process.env.DATABASE_URL);
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, min: 10, max: 10 });
 
-const db = drizzle({ client: pool, relations, useJitMappers: false });
+const db = drizzle({ client: pool, relations, jit: false });
 
 const p1 = db.query.customers
   .findMany({

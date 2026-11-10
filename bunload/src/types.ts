@@ -29,6 +29,11 @@ export interface BenchConfig {
   /** Runs once in every worker before the test starts. */
   init?(): void | Promise<void>;
 
+  /**
+   * Stop after this many requests in total (all workers), like k6's iteration count.
+   * Stages still drive the VU ramp; the run ends at whichever comes first.
+   */
+  iterations?: number;
   /** Worker threads; VUs are split evenly across them. Default 2. */
   workers?: number;
   /** Per-request timeout. Default 30s. */

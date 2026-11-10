@@ -2,19 +2,17 @@ import { serve } from '@hono/node-server';
 import cluster from 'cluster';
 import 'dotenv/config';
 import { asc, eq, sql } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { Hono } from 'hono';
 import os from 'os';
-import pg from 'pg';
 import cpuUsage from './cpu-usage';
-import { relations } from './relations';
+import { createDb, driver, serverWorkers } from './drizzle-db';
 import * as schema from './schema';
 import { customers, details, orders, products } from './schema';
 
-const numCPUs = os.cpus().length;
+const numCPUs = serverWorkers(os.cpus().length);
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, min: 10, max: 10 });
-const db = drizzle({ client: pool, relations, useJitMappers:true });
+// DRIVER=pg (default) | drizzle — see ./drizzle-db.ts
+const db = createDb();
 
 const p1 = db.query.customers
   .findMany({
@@ -262,5 +260,5 @@ if (cluster.isPrimary) {
     fetch: app.fetch,
     port: 3000,
   });
-  console.log(`Worker ${process.pid} started`);
+  console.log(`Worker ${process.pid} started (driver: ${driver})`);
 }

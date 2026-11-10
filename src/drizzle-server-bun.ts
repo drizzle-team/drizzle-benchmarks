@@ -1,20 +1,17 @@
 import { Hono } from 'hono';
-import { drizzle } from 'drizzle-orm/bun-sql';
-import { relations } from './relations';
+import { createDb, driver, serverWorkers } from './drizzle-db';
 import * as schema from './schema';
 import { eq, sql, asc } from 'drizzle-orm';
 import cpuUsage from './cpu-usage';
 import { customers, details, employees, orders, products, suppliers } from './schema';
 import 'dotenv/config';
-// import pg from 'pg';
 import cluster from 'cluster';
 import os from 'os';
 
-const numCPUs =  os.cpus().length;
-const client = new Bun.SQL(process.env.DATABASE_URL!, { bigint: true, prepare: true });
+const numCPUs = serverWorkers(os.cpus().length);
 
-// const client = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 20 });
-const db = drizzle({ client, relations, useJitMappers: true, logger:false });
+// DRIVER=bun (default) | drizzle | pg — see ./drizzle-db.ts
+const db = createDb();
 
 const p1 = db.query.customers
   .findMany({
@@ -262,5 +259,5 @@ if (cluster.isPrimary) {
       port: 3000,
       reusePort: true,
     });
-    console.log(`Worker ${process.pid} started`);
+    console.log(`Worker ${process.pid} started (driver: ${driver})`);
 }

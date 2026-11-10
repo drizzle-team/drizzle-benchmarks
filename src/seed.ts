@@ -1,21 +1,21 @@
-import postgres from "postgres";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import {
-  CustomerInsert,
-  customers,
-  DetailInsert,
-  details,
-  employees,
-  OrderInsert,
-  orders,
-  ProductInsert,
-  products,
-  SupplierInsert,
-  suppliers,
-} from "./schema";
 import { faker } from "@faker-js/faker";
 import "dotenv/config";
+import { drizzle } from "drizzle-orm/postgres";
+import { migrate } from "drizzle-orm/postgres/migrator";
+import type { PgTable } from "drizzle-orm/pg-core";
+import { customers, details, employees, orders, products, suppliers } from "./schema";
+
+type CustomerInsert = typeof customers.$inferInsert;
+type EmployeeInsert = typeof employees.$inferInsert;
+type OrderInsert = typeof orders.$inferInsert;
+type SupplierInsert = typeof suppliers.$inferInsert;
+type ProductInsert = typeof products.$inferInsert;
+type DetailInsert = typeof details.$inferInsert;
+
+// SEED_INSERT=bulk (default): db.bulkInsert() — the driver inserts via unnest and chunks on its own
+// SEED_INSERT=values: classic db.insert().values() in SEED_CHUNK-row statements, same driver, for comparison
+const insertMode = process.env.SEED_INSERT === "values" ? "values" : "bulk";
+const CHUNK = Number(process.env.SEED_CHUNK ?? 2_500); // values mode only; keep rows × columns ≤ 32767
 
 const titlesOfCourtesy = ["Ms.", "Mrs.", "Dr."];
 const unitsOnOrders = [0, 10, 20, 30, 50, 60, 70, 80, 100];
@@ -108,19 +108,29 @@ const sizes = {
 
 async function main(size: keyof typeof sizes) {
   const config = sizes[size];
+  const db = drizzle(process.env.DATABASE_URL!);
+  await migrate(db, { migrationsFolder: "drizzle" });
 
-  try {
-    const client = postgres(process.env.DATABASE_URL!);
-    const db = drizzle({ client, logger: false });
+  const timings: { table: string; rows: number; generateMs: number; insertMs: number }[] = [];
+  /** generate rows (faker), then insert them, timing both separately */
+  async function seed<T extends PgTable>(name: string, table: T, generate: () => any[]) {
+    console.log(`seeding ${name}...`);
+    let t = performance.now();
+    const rows = generate();
+    const generateMs = performance.now() - t;
+    t = performance.now();
+    if (insertMode === "bulk") {
+      await db.bulkInsert(table, rows);
+    } else {
+      for (let i = 0; i < rows.length; i += CHUNK) await db.insert(table).values(rows.slice(i, i + CHUNK));
+    }
+    timings.push({ table: name, rows: rows.length, generateMs, insertMs: performance.now() - t });
+  }
 
-    const migrationsClient = postgres(process.env.DATABASE_URL!, { max: 1 });
-    const migrationDB: PostgresJsDatabase = drizzle({ client: migrationsClient });
-    await migrate(migrationDB, { migrationsFolder: "drizzle" });
-
-    console.log("seeding customers...");
-    let customerModels: CustomerInsert[] = [];
+  await seed("customers", customers, () => {
+    const rows: CustomerInsert[] = [];
     for (let customerId = 1; customerId <= config.customers; customerId++) {
-      customerModels.push({
+      rows.push({
         companyName: faker.company.name(),
         contactName: faker.person.fullName(),
         contactTitle: faker.person.jobTitle(),
@@ -132,46 +142,40 @@ async function main(size: keyof typeof sizes) {
         phone: faker.phone.number("(###) ###-####"),
         fax: faker.phone.number("(###) ###-####"),
       });
-
-      if (customerModels.length > 5_000) {
-        await db.insert(customers).values(customerModels).execute();
-        customerModels = [];
-      }
     }
+    return rows;
+  });
 
-    if (customerModels.length) {
-      await db.insert(customers).values(customerModels).execute();
-    }
-
-    console.log("seeding employees...");
+  // one bulk statement: recipientId always points to an earlier employee, and Postgres
+  // checks the self-referencing foreign key at the end of the statement
+  await seed("employees", employees, () => {
+    const rows: EmployeeInsert[] = [];
     for (let employeeId = 1; employeeId <= config.employees; employeeId++) {
-      await db
-        .insert(employees)
-        .values({
-          firstName: faker.person.firstName(),
-          lastName: faker.person.lastName(),
-          title: faker.person.jobTitle(),
-          titleOfCourtesy: faker.helpers.arrayElement(titlesOfCourtesy),
-          birthDate: faker.date.birthdate(),
-          hireDate: faker.date.past(),
-          address: faker.location.streetAddress(),
-          city: faker.location.city(),
-          postalCode: faker.location.zipCode(),
-          country: faker.location.country(),
-          homePhone: faker.phone.number("(###) ###-####"),
-          extension: getRandomInt(428, 5467),
-          notes: faker.person.bio(),
-          recipientId: employeeId > 1 ? getRandomInt(1, employeeId - 1) : null,
-        })
-        .execute();
+      rows.push({
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        title: faker.person.jobTitle(),
+        titleOfCourtesy: faker.helpers.arrayElement(titlesOfCourtesy),
+        birthDate: faker.date.birthdate(),
+        hireDate: faker.date.past(),
+        address: faker.location.streetAddress(),
+        city: faker.location.city(),
+        postalCode: faker.location.zipCode(),
+        country: faker.location.country(),
+        homePhone: faker.phone.number("(###) ###-####"),
+        extension: getRandomInt(428, 5467),
+        notes: faker.person.bio(),
+        recipientId: employeeId > 1 ? getRandomInt(1, employeeId - 1) : null,
+      });
     }
+    return rows;
+  });
 
-    console.log("locading orders...");
-    let startOrderDate = new Date("2016");
-
-    let orderModels: OrderInsert[] = [];
+  await seed("orders", orders, () => {
+    const rows: OrderInsert[] = [];
+    const startOrderDate = new Date("2016");
     for (let orderId = 1; orderId <= config.orders; orderId++) {
-      const orderDate = startOrderDate;
+      const orderDate = new Date(startOrderDate); // own copy per order (was a shared, mutated Date)
 
       const requiredDate = new Date(orderDate);
       requiredDate.setHours(orderDate.getHours() + 30 * 24);
@@ -179,7 +183,7 @@ async function main(size: keyof typeof sizes) {
       const shippedDate = new Date(orderDate);
       shippedDate.setHours(orderDate.getHours() + 10 * 24);
 
-      orderModels.push({
+      rows.push({
         orderDate,
         requiredDate,
         shippedDate,
@@ -195,21 +199,14 @@ async function main(size: keyof typeof sizes) {
       });
 
       startOrderDate.setMinutes(startOrderDate.getMinutes() + 1);
-
-      if (orderModels.length > 5_000) {
-        await db.insert(orders).values(orderModels).execute();
-        orderModels = [];
-      }
     }
+    return rows;
+  });
 
-    if (orderModels.length) {
-      await db.insert(orders).values(orderModels).execute();
-    }
-
-    console.log("seeding suppliers...");
-    let supplierModels: SupplierInsert[] = [];
+  await seed("suppliers", suppliers, () => {
+    const rows: SupplierInsert[] = [];
     for (let supplierId = 1; supplierId <= config.suppliers; supplierId++) {
-      supplierModels.push({
+      rows.push({
         companyName: faker.company.name(),
         contactName: faker.person.fullName(),
         contactTitle: faker.person.jobTitle(),
@@ -220,26 +217,19 @@ async function main(size: keyof typeof sizes) {
         country: faker.location.country(),
         phone: faker.phone.number("(###) ###-####"),
       });
-
-      if (supplierModels.length > 5_000) {
-        await db.insert(suppliers).values(supplierModels).execute();
-        supplierModels = [];
-      }
     }
+    return rows;
+  });
 
-    if (supplierModels.length) {
-      await db.insert(suppliers).values(supplierModels).execute();
-    }
-
-    console.log("seeding products...");
-    let productModels: ProductInsert[] = [];
-    const productPrices = new Map<number, number>();
+  const productPrices = new Map<number, number>();
+  await seed("products", products, () => {
+    const rows: ProductInsert[] = [];
     for (let productId = 1; productId <= config.products; productId++) {
       const unitPrice = getRandomInt(0, 1)
         ? getRandomInt(3, 300)
         : Number(`${getRandomInt(3, 300)}.${getRandomInt(5, 99)}`);
 
-      productModels.push({
+      rows.push({
         name: faker.company.name(),
         quantityPerUnit: faker.helpers.arrayElement(quantityPerUnit),
         unitPrice,
@@ -251,19 +241,12 @@ async function main(size: keyof typeof sizes) {
       });
 
       productPrices.set(productId, unitPrice);
-
-      if (productModels.length > 5_000) {
-        await db.insert(products).values(productModels).execute();
-        productModels = [];
-      }
     }
+    return rows;
+  });
 
-    if (productModels.length) {
-      await db.insert(products).values(productModels).execute();
-    }
-
-    console.log("seeding order details...");
-    let detailModels: DetailInsert[] = [];
+  await seed("order details", details, () => {
+    const rows: DetailInsert[] = [];
     const productCount = weightedRandom([
       { weight: 0.6, value: [1, 2, 3, 4] },
       { weight: 0.2, value: [5, 6, 7, 8, 9, 10] },
@@ -273,37 +256,31 @@ async function main(size: keyof typeof sizes) {
 
     for (let orderId = 1; orderId <= config.orders; orderId++) {
       const count = productCount();
-
       for (let i = 0; i < count; i++) {
         const productId = getRandomInt(1, config.products);
-        const unitPrice = productPrices.get(productId);
-
-        detailModels.push({
-          unitPrice: unitPrice!,
+        rows.push({
+          unitPrice: productPrices.get(productId)!,
           quantity: getRandomInt(1, 130),
-          discount: getRandomInt(0, 1)
-            ? 0
-            : faker.helpers.arrayElement(discounts),
-          orderId: orderId,
+          discount: getRandomInt(0, 1) ? 0 : faker.helpers.arrayElement(discounts),
+          orderId,
           productId,
         });
-
-        if (detailModels.length > 5_000) {
-          await db.insert(details).values(detailModels).execute();
-          detailModels = [];
-        }
       }
     }
+    return rows;
+  });
 
-    if (detailModels.length) {
-      await db.insert(details).values(detailModels).execute();
-    }
-
-    console.log("done!");
-    process.exit(0);
-  } catch (err: any) {
-    console.log("FATAL ERROR:", err);
-  }
+  const total = timings.reduce((a, t) => ({ rows: a.rows + t.rows, gen: a.gen + t.generateMs, ins: a.ins + t.insertMs }), { rows: 0, gen: 0, ins: 0 });
+  console.log(`\ndone (insert mode: ${insertMode})`);
+  console.table(
+    timings.map((t) => ({ table: t.table, rows: t.rows, "generate ms": Math.round(t.generateMs), "insert ms": Math.round(t.insertMs), "rows/s": Math.round(t.rows / (t.insertMs / 1000)) })),
+  );
+  console.log(`total: ${total.rows} rows, generate ${Math.round(total.gen)} ms, insert ${Math.round(total.ins)} ms (${Math.round(total.rows / (total.ins / 1000))} rows/s)`);
 }
 
-main("micro");
+main("micro")
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("FATAL ERROR:", err);
+    process.exit(1); // the old seed swallowed errors and then hung on the open pool
+  });

@@ -17,6 +17,7 @@ export interface StartMsg {
   stages: Stage[];
   startAt: number; // epoch ms
   chunkRows: number;
+  maxIterations: number; // 0 = unlimited
   iterCounter: SharedArrayBuffer; // global iteration counter shared by all workers (k6 iterationInTest)
 }
 
@@ -42,6 +43,7 @@ let scenario: BenchConfig;
 let timeout = 30_000;
 let stopping = false;
 let currentTarget = 0;
+let exhausted = false; // iteration limit reached: VUs stop and the scheduler ends the run
 let hardStopped = false; // in-flight requests interrupted at the end are dropped (like k6)
 
 // ---- metrics buffer --------------------------------------------------------
@@ -101,6 +103,10 @@ async function vu(id: number) {
   try {
     while (!vuStop[id] && !stopping) {
       const iter = Atomics.add(iterCounter, 0, 1);
+      if (cfg.maxIterations && iter >= cfg.maxIterations) {
+        exhausted = true;
+        break;
+      }
       if (!conn.alive) {
         const t = performance.now();
         if (!(await conn.connect())) {
@@ -230,7 +236,7 @@ async function start(msg: StartMsg) {
   await new Promise<void>((resolve) => {
     const tick = () => {
       const elapsed = epochNow() - cfg.startAt;
-      const t = stopping ? -1 : targetAt(stages, elapsed);
+      const t = stopping || exhausted ? -1 : targetAt(stages, elapsed);
       if (t < 0) {
         clearInterval(timer);
         resolve();

@@ -31,7 +31,7 @@ main();
 ```env
 DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
 ```
-3. Seed the database with test data using `pnpm start:seed`. You can change the size of the database in `./src/seed.ts`:
+3. Seed the database with test data using `pnpm start:seed`. It runs the migrations in `drizzle/` and bulk-inserts ~370k rows with `db.bulkInsert()` in a few seconds. You can change the size of the database in `./src/seed.ts`:
 ```ts
 ...
 }
@@ -39,7 +39,19 @@ DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
 main("micro"); // nano | micro
 ```
 4. Make sure you have Node 18 or above installed (we use Node 24, e.g. [`nvm use 24`](https://github.com/nvm-sh/nvm)), or Bun for the Bun servers.
-5. Start the server you want to test. Every server runs one process per CPU core and exposes `/stats` (per-core CPU usage), which the benchmark samples:
+5. Start the server you want to test. Every server runs one process per CPU core (`WORKERS=n` to override) and exposes `/stats` (per-core CPU usage), which the benchmark samples. The Drizzle servers can run on any of three Postgres drivers, with the same pool size per process (`POOL_MAX`, default 10):
+
+| `DRIVER` | driver | |
+|---|---|---|
+| `pg` | node-postgres | default on Node |
+| `drizzle` | `drizzle-orm/postgres`, Drizzle's own driver | |
+| `bun` | `Bun.SQL` | default on Bun; Bun only |
+
+```bash
+DRIVER=drizzle bun src/drizzle-server-bun.ts   # Bun + Drizzle's driver
+DRIVER=bun bun src/drizzle-server-bun.ts       # Bun + Bun.SQL
+```
+
 ```bash
 ## Drizzle (port 3000)
 pnpm start:drizzle              # Node + Hono
@@ -66,8 +78,9 @@ cd viewer && bun install && cd ..
 
 ## Run benchmarks 🚀
 ```bash
-bun bench/index.ts <host> <name>            # full profile: 0 → 3000 VUs over ~5m40s
-bun bench/index.ts <host> <name> --quick    # 500 → 3000 VUs in 60s
+bun bench/index.ts <host> <name>                     # full profile: 0 → 3000 VUs over ~5m40s
+bun bench/index.ts <host> <name> --quick             # 500 → 3000 VUs in 60s
+bun bench/index.ts <host> <name> --requests 1000000  # same ramp, stop after 1M requests
 
 bun bench/index.ts http://192.168.31.144:3000 drizzle
 bun bench/index.ts http://192.168.31.144:3001 prisma

@@ -116,6 +116,7 @@ async function runMain(config: BenchConfig, runIndex: number): Promise<RunResult
         stages: config.stages,
         startAt,
         chunkRows: config.chunkRows ?? 16_384,
+        maxIterations: config.iterations ?? 0,
         iterCounter,
       };
       w.postMessage(msg);
@@ -191,7 +192,9 @@ async function runMain(config: BenchConfig, runIndex: number): Promise<RunResult
         ? `parquet parts every ${flush.rows || '∞'} rows / ${flush.everyMs ? flush.everyMs / 1000 + 's' : '∞'}`
         : 'parquet at the end';
     console.log(
-      `bunload ${name} → ${host} | workers=${workers} | ${(totalMs / 1000).toFixed(0)}s | ${outDesc}`,
+      `bunload ${name} → ${host} | workers=${workers} | ${(totalMs / 1000).toFixed(0)}s` +
+        (config.iterations ? ` or ${config.iterations.toLocaleString('en-US')} requests, whichever first` : '') +
+        ` | ${outDesc}`,
     );
   }
 

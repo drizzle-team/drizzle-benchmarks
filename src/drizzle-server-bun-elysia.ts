@@ -11,7 +11,7 @@ import os from 'os';
 // const client = new Bun.SQL(process.env.DATABASE_URL!, { max: 20});
 const db = drizzle({ connection:{
   url: process.env.DATABASE_URL!,
-}, relations, logger: false, useJitMappers: true });
+}, relations, logger: false, jit: true });
 
 const p1 = db.query.customers
   .findMany({
