@@ -1,12 +1,12 @@
-import { readFileSync } from 'fs';
 import axios from 'axios';
 import r from 'ramda';
 import diff from 'deep-diff';
 import 'dotenv/config';
+import { requests } from '../bench/requests';
 
-const reqs = (JSON.parse(readFileSync('./data/requests.json', 'utf-8')) as string[]).filter(
-  (it) => !it.startsWith('/search'),
-);
+// same deterministic request sequence the benchmark sends
+const path = requests({ seed: 1 });
+const reqs = Array.from({ length: 400_000 }, (_, i) => path(i));
 
 const phost = `http://192.168.31.144:3001`; // prisma
 const dhost = `http://192.168.31.144:3000`; // drizzle

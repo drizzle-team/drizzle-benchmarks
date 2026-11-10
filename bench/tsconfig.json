@@ -1,0 +1,18 @@
+{
+  // bench/ runs on Bun (top-level await, ESM). The root tsconfig is for the Node servers in src/.
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext"],
+    "types": ["bun"],
+    // @types/bun comes from bunload/ (root node_modules isn't needed on the load machine)
+    "typeRoots": ["../node_modules/@types", "../bunload/node_modules/@types"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["."]
+}
