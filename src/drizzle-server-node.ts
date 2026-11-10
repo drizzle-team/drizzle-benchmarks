@@ -4,10 +4,10 @@ import 'dotenv/config';
 import { asc, eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import os from 'os';
-import cpuUsage from './cpu-usage';
-import { createDb, driver, serverWorkers } from './drizzle-db';
-import * as schema from './schema';
-import { customers, details, orders, products } from './schema';
+import cpuUsage from './cpu-usage.ts';
+import { createDb, driver, serverWorkers } from './drizzle-db.ts';
+import * as schema from './schema.ts';
+import { customers, details, orders, products } from './schema.ts';
 
 const numCPUs = serverWorkers(os.cpus().length);
 

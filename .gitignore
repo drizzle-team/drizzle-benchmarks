@@ -3,3 +3,7 @@ test
 results
 dist
 data.json
+
+# generated: Prisma 7 client (`pnpm prepare:prisma`), Prisma 8 contract (`cd prisma8 && bun run generate`)
+prisma7/generated
+prisma8/generated

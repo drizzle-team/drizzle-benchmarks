@@ -6,8 +6,9 @@
 //
 // Every driver gets the same pool size per server process (POOL_MAX, default 10).
 import 'dotenv/config';
+import { createRequire } from 'node:module';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { relations } from './relations';
+import { relations } from './relations.ts';
 
 export type Driver = 'pg' | 'drizzle' | 'bun';
 
@@ -19,8 +20,9 @@ const max = Number(process.env.POOL_MAX ?? 10);
 // All three are pg-core databases with the same query API; typed as one for the handlers.
 type Db = NodePgDatabase<typeof relations>;
 
-// Synchronous require() so it works both under tsx (CommonJS, no top-level await) and Bun,
-// and only the selected driver gets loaded.
+// Synchronous require() (via createRequire, as these are ES modules) so only the selected driver
+// gets loaded, on both Node and Bun.
+const require = createRequire(import.meta.url);
 export function createDb(): Db {
   switch (driver) {
     case 'pg': {

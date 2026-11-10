@@ -12,7 +12,7 @@ esbuild.buildSync({
 });
 
 esbuild.buildSync({
-  entryPoints: ['./src/prisma-server-node.ts'],
+  entryPoints: ['./prisma7/server-node.ts'],
   bundle: true,
   minify: true,
   outfile: 'dist/prisma.js',
@@ -23,7 +23,7 @@ esbuild.buildSync({
 });
 
 // esbuild.buildSync({
-//   entryPoints: ['./src/prisma-joins-server-node.ts'],
+//   entryPoints: ['./prisma7/joins-server-node.ts'],
 //   bundle: true,
 //   minify: true,
 //   outfile: 'dist/prisma-joins.js',

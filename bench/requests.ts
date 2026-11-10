@@ -2,7 +2,7 @@
 // src/generate.ts → data/requests.json). Ids are drawn from the seeded tables (1..N).
 // Pure function of (seed, iter): every run and every target gets the identical sequence.
 // Imports random.ts directly (not the bunload index) so Node tools like src/test.ts can use it.
-import { mix, type Route } from '../bunload/src/random';
+import { mix, type Route } from '../bunload/src/random.ts';
 
 // keep in sync with src/seed.ts
 export const sizes = {

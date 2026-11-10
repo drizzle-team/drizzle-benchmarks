@@ -1,5 +1,5 @@
 import { Elysia } from 'elysia';
-import { PrismaClient } from './generated/prisma/client';
+import { PrismaClient } from './generated/prisma/client.ts';
 import { PrismaPg } from '@prisma/adapter-pg';
 import cluster from 'cluster';
 import os from 'os';

@@ -1,7 +1,7 @@
 
 import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client";
-import cpuUsage from "../cpu-usage";
+import cpuUsage from "../cpu-usage.ts";
 import os from "os"
 
 const prisma = new PrismaClient();

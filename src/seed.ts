@@ -3,7 +3,7 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres";
 import { migrate } from "drizzle-orm/postgres/migrator";
 import type { PgTable } from "drizzle-orm/pg-core";
-import { customers, details, employees, orders, products, suppliers } from "./schema";
+import { customers, details, employees, orders, products, suppliers } from "./schema.ts";
 
 type CustomerInsert = typeof customers.$inferInsert;
 type EmployeeInsert = typeof employees.$inferInsert;

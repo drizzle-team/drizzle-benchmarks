@@ -5,6 +5,9 @@ generator client {
   binaryTargets   = ["native", "rhel-openssl-1.0.x"]
   engineType      = "client"
   runtime         = "bun"
+  // native Node TypeScript needs explicit extensions in the generated client's own imports
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
 }
 
 datasource db {

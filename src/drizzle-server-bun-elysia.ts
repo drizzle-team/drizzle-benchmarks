@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia';
 import { drizzle } from 'drizzle-orm/bun-sql';
-import { relations } from './relations';
+import { relations } from './relations.ts';
 import { eq, sql, asc } from 'drizzle-orm';
-import { customers, details, orders, products } from './schema';
+import { customers, details, orders, products } from './schema.ts';
 import 'dotenv/config';
 import cluster from 'cluster';
 import os from 'os';

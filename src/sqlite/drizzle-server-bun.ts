@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import * as schema from "../schema";
+import * as schema from "../schema.ts";
 import Database from 'better-sqlite3';
 import { eq, sql, asc } from "drizzle-orm";
-import cpuUsage from "../cpu-usage";
+import cpuUsage from "../cpu-usage.ts";
 import {
   customers,
   details,
@@ -11,7 +11,7 @@ import {
   orders,
   products,
   suppliers,
-} from "./schema";
+} from "./schema.ts";
 import "dotenv/config";
 import cluster from "cluster";
 import os from "os";

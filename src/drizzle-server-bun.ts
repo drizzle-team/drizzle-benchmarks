@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
-import { createDb, driver, serverWorkers } from './drizzle-db';
-import * as schema from './schema';
+import { createDb, driver, serverWorkers } from './drizzle-db.ts';
+import * as schema from './schema.ts';
 import { eq, sql, asc } from 'drizzle-orm';
-import cpuUsage from './cpu-usage';
-import { customers, details, employees, orders, products, suppliers } from './schema';
+import cpuUsage from './cpu-usage.ts';
+import { customers, details, employees, orders, products, suppliers } from './schema.ts';
 import 'dotenv/config';
 import cluster from 'cluster';
 import os from 'os';

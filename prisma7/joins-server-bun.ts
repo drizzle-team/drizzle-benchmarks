@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
-import { PrismaClient } from './generated/prisma/client';
+import { PrismaClient } from './generated/prisma/client.ts';
 import { PrismaPg } from '@prisma/adapter-pg';
-import cpuUsage from '../src/cpu-usage';
+import cpuUsage from '../src/cpu-usage.ts';
 import cluster from 'cluster';
 import os from 'os';
 const numCPUs = os.cpus().length;

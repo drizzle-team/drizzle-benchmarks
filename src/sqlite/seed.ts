@@ -13,7 +13,7 @@ import {
   products,
   SupplierInsert,
   suppliers,
-} from '../schema';
+} from '../schema.ts';
 import { faker } from '@faker-js/faker';
 import 'dotenv/config';
 

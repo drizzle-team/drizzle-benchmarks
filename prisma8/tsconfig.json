@@ -1,0 +1,19 @@
+{
+  // prisma8/ runs Prisma 8 (ESM, JSON import attributes) on Bun or Node; the root tsconfig is for src/.
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext"],
+    "types": ["bun"],
+    "strict": true,
+    // only syntax Node's type stripping can run (no enums, namespaces, parameter properties)
+    "erasableSyntaxOnly": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}

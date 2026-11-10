@@ -2,7 +2,7 @@ import axios from 'axios';
 import r from 'ramda';
 import diff from 'deep-diff';
 import 'dotenv/config';
-import { requests } from '../bench/requests';
+import { requests } from '../bench/requests.ts';
 
 // same deterministic request sequence the benchmark sends
 const path = requests({ seed: 1 });

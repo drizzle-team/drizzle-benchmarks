@@ -6,8 +6,8 @@ import { asc, eq, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import os from 'os';
 import pg from 'pg';
-import { relations } from './relations';
-import { details, orders } from './schema';
+import { relations } from './relations.ts';
+import { details, orders } from './schema.ts';
 
 console.log(process.env.DATABASE_URL);
 
