@@ -11,6 +11,7 @@ import { customers, details, orders, products } from './schema.ts';
 
 const numCPUs = serverWorkers(os.cpus().length);
 
+
 // DRIVER=pg (default) | drizzle — see ./drizzle-db.ts
 const db = createDb();
 
@@ -35,7 +36,7 @@ const p2 = db.query.customers
 const p3 = db.query.customers
   .findMany({
     where: {
-      RAW: sql`to_tsvector('english', ${customers.companyName}) @@ to_tsquery('english', ${sql.placeholder('term')})`,
+      RAW: (c) => sql`to_tsvector('english', ${c.companyName}) @@ to_tsquery('english', ${sql.placeholder('term')})`,
     },
   })
   .prepare('p3');
@@ -103,7 +104,7 @@ const p9 = db.query.products
 const p10 = db.query.products
   .findMany({
     where: {
-      RAW: sql`to_tsvector('english', ${products.name}) @@ to_tsquery('english', ${sql.placeholder('term')})`,
+      RAW: (p) => sql`to_tsvector('english', ${p.name}) @@ to_tsquery('english', ${sql.placeholder('term')})`,
     },
   })
   .prepare('p10');

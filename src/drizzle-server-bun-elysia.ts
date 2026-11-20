@@ -1,17 +1,16 @@
-import { Elysia } from 'elysia';
-import { drizzle } from 'drizzle-orm/bun-sql';
-import { relations } from './relations.ts';
+import { createDb, driver, serverWorkers } from './drizzle-db.ts';
+import * as schema from './schema.ts';
 import { eq, sql, asc } from 'drizzle-orm';
-import { customers, details, orders, products } from './schema.ts';
+import { customers, details, employees, orders, products, suppliers } from './schema.ts';
 import 'dotenv/config';
 import cluster from 'cluster';
 import os from 'os';
+import { cpuStats, procStats } from './cpu-usage.ts';
 
-// const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, min: 10, max: 10 });
-// const client = new Bun.SQL(process.env.DATABASE_URL!, { max: 20});
-const db = drizzle({ connection:{
-  url: process.env.DATABASE_URL!,
-}, relations, logger: false, jit: true });
+const numCPUs = serverWorkers(os.cpus().length);
+
+// DRIVER=bun (default) | drizzle | pg — see ./drizzle-db.ts
+const db = createDb();
 
 const p1 = db.query.customers
   .findMany({
@@ -21,7 +20,7 @@ const p1 = db.query.customers
       id: 'asc',
     },
   })
-  .prepare();
+  .prepare('p1');
 
 const p2 = db.query.customers
   .findFirst({
@@ -29,15 +28,15 @@ const p2 = db.query.customers
       id: sql.placeholder('id'),
     },
   })
-  .prepare();
+  .prepare('p2');
 
 const p3 = db.query.customers
   .findMany({
     where: {
-      RAW:(c)=> sql`to_tsvector('english', ${c.companyName}) @@ to_tsquery('english', ${sql.placeholder('term')})`,
+      RAW:(c) => sql`to_tsvector('english', ${c.companyName}) @@ to_tsquery('english', ${sql.placeholder('term')})`,
     },
   })
-  .prepare();
+  .prepare('p3');
 
 const p4 = db.query.employees
   .findMany({
@@ -47,7 +46,7 @@ const p4 = db.query.employees
       id: 'asc',
     },
   })
-  .prepare();
+  .prepare('p4');
 
 const p5 = db.query.employees
   .findMany({
@@ -58,7 +57,7 @@ const p5 = db.query.employees
       id: sql.placeholder('id'),
     },
   })
-  .prepare();
+  .prepare('p5');
 
 const p6 = db.query.suppliers
   .findMany({
@@ -68,7 +67,7 @@ const p6 = db.query.suppliers
       id: 'asc',
     },
   })
-  .prepare();
+  .prepare('p6');
 
 const p7 = db.query.suppliers
   .findFirst({
@@ -76,7 +75,7 @@ const p7 = db.query.suppliers
       id: sql.placeholder('id'),
     },
   })
-  .prepare();
+  .prepare('p7');
 
 const p8 = db.query.products
   .findMany({
@@ -86,7 +85,7 @@ const p8 = db.query.products
       id: 'asc',
     },
   })
-  .prepare();
+  .prepare('p8');
 
 const p9 = db.query.products
   .findMany({
@@ -97,7 +96,7 @@ const p9 = db.query.products
       supplier: true,
     },
   })
-  .prepare();
+  .prepare('p9');
 
 const p10 = db.query.products
   .findMany({
@@ -105,7 +104,7 @@ const p10 = db.query.products
       RAW:(p)=> sql`to_tsvector('english', ${p.name}) @@ to_tsquery('english', ${sql.placeholder('term')})`,
     },
   })
-  .prepare();
+  .prepare('p10');
 
 const p11 = db
   .select({
@@ -124,7 +123,7 @@ const p11 = db
   .orderBy(asc(orders.id))
   .limit(sql.placeholder('limit'))
   .offset(sql.placeholder('offset'))
-  .prepare();
+  .prepare('p11');
 
 const p12 = db
   .select({
@@ -142,7 +141,7 @@ const p12 = db
   .where(eq(orders.id, sql.placeholder('id')))
   .groupBy(orders.id)
   .orderBy(asc(orders.id))
-  .prepare();
+  .prepare('p12');
 
 const p13 = db.query.orders
   .findMany({
@@ -155,82 +154,36 @@ const p13 = db.query.orders
     },
     where: {
       id: sql.placeholder('id'),
-    },
-  })
-  .prepare();
-
-interface CpuUsage {
-  usage: number;
-  total: number;
-}
-
-let cpuTemp: CpuUsage[] = [];
-
-const app = new Elysia()
-  .get('/stats', () => {
-    const cpus = os.cpus();
-    const cpuUsage = cpus.map((cpu) => {
-      const { user, nice, sys, irq, idle } = cpu.times;
-      const total = user + nice + sys + irq + idle;
-      const usage = user + nice + sys + irq;
-      return { usage, total };
-    });
-
-    let result: number[] = [];
-    if (cpuTemp.length > 0) {
-      result = cpuUsage.map((cpu, index) => {
-        const usageDiff = cpu.usage - cpuTemp[index].usage;
-        const totalDiff = cpu.total - cpuTemp[index].total;
-        return parseInt(((100 * usageDiff) / totalDiff).toFixed());
-      });
     }
-    cpuTemp = cpuUsage;
+  })
+  .prepare('p13');
 
-    return result;
-  })
-  .get('/customers', ({ query }) => {
-    const limit = Number(query.limit);
-    const offset = Number(query.offset);
-    return p1.execute({ limit, offset });
-  })
+
+// Same queries as drizzle-server-bun.ts (DRIVER / WORKERS / POOL_MAX apply), served by Elysia
+// instead of Hono, to compare framework overhead on Bun. ELYSIA=2 runs Elysia 2.0 (the `elysia2` alias,
+// 2.0.0-rc.4) instead of 1.4.
+const elysiaVersion = process.env.ELYSIA === '2' ? '2' : '1.4';
+const { Elysia } = (await import(elysiaVersion === '2' ? 'elysia2' : 'elysia')) as typeof import('elysia');
+const app = new Elysia()
+  .get('/stats', () => cpuStats())
+  .get('/stats/procs', () => procStats())
+  .get('/customers', ({ query }) => p1.execute({ limit: Number(query.limit), offset: Number(query.offset) }))
   .get('/customer-by-id', ({ query }) => p2.execute({ id: query.id }))
-  .get('/search-customer', ({ query }) => {
-    const term = `${query.term}:*`;
-    return p3.execute({ term });
-  })
-  .get('/employees', ({ query }) => {
-    const limit = Number(query.limit);
-    const offset = Number(query.offset);
-    return p4.execute({ limit, offset });
-  })
+  .get('/search-customer', ({ query }) => p3.execute({ term: `${query.term}:*` }))
+  .get('/employees', ({ query }) => p4.execute({ limit: Number(query.limit), offset: Number(query.offset) }))
   .get('/employee-with-recipient', ({ query }) => p5.execute({ id: query.id }))
-  .get('/suppliers', ({ query }) => {
-    const limit = Number(query.limit);
-    const offset = Number(query.offset);
-    return p6.execute({ limit, offset });
-  })
+  .get('/suppliers', ({ query }) => p6.execute({ limit: Number(query.limit), offset: Number(query.offset) }))
   .get('/supplier-by-id', ({ query }) => p7.execute({ id: query.id }))
-  .get('/products', ({ query }) => {
-    const limit = Number(query.limit);
-    const offset = Number(query.offset);
-    return p8.execute({ limit, offset });
-  })
+  .get('/products', ({ query }) => p8.execute({ limit: Number(query.limit), offset: Number(query.offset) }))
   .get('/product-with-supplier', ({ query }) => p9.execute({ id: query.id }))
-  .get('/search-product', ({ query }) => {
-    const term = `${query.term}:*`;
-    return p10.execute({ term });
-  })
-  .get('/orders-with-details', ({ query }) => {
-    const limit = Number(query.limit);
-    const offset = Number(query.offset);
-    return p11.execute({ limit, offset });
-  })
+  .get('/search-product', ({ query }) => p10.execute({ term: `${query.term}:*` }))
+  .get('/orders-with-details', ({ query }) => p11.execute({ limit: Number(query.limit), offset: Number(query.offset) }))
   .get('/order-with-details', ({ query }) => p12.execute({ id: query.id }))
   .get('/order-with-details-and-products', ({ query }) => p13.execute({ id: query.id }));
 
 if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} is running`);
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
 
@@ -239,5 +192,5 @@ if (cluster.isPrimary) {
   });
 } else {
   app.listen({ port: 3000, reusePort: true });
-  console.log(`Worker ${process.pid} started`);
+  console.log(`Worker ${process.pid} started (elysia ${elysiaVersion}, driver: ${driver})`);
 }

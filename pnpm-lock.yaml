@@ -4,13 +4,21 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+pnpmfileChecksum: sha256-Qo78M5OJd37X2X/cADTH9dfFhGi5zKyd5jg61ms9OR4=
+
 importers:
 
   .:
     dependencies:
+      '@drizzle-team/postgres':
+        specifier: https://pkg.pr.new/drizzle-team/drizzle-orm/@drizzle-team/postgres@45b4a38
+        version: https://pkg.pr.new/drizzle-team/drizzle-orm/@drizzle-team/postgres@45b4a38(@electric-sql/pglite@0.4.3)(effect@4.1.4)
+      '@effect/sql-pg':
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)
       '@hono/node-server':
-        specifier: ^1.19.6
-        version: 1.19.6(hono@4.12.15)
+        specifier: 2.1.6
+        version: 2.1.6(hono@4.13.17)
       '@prisma/adapter-pg':
         specifier: 7.10.1
         version: 7.10.1(pg-native@3.5.2)
@@ -27,14 +35,26 @@ importers:
         specifier: ^16.3.1
         version: 16.6.1
       drizzle-orm:
-        specifier: https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1
-        version: https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(valibot@1.4.2(typescript@5.9.3))
+        specifier: https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38
+        version: https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38(@effect/sql-pg@4.1.4(effect@4.1.4))(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(effect@4.1.4)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(typebox@1.4.7)(valibot@1.4.2(typescript@5.9.3))
+      effect:
+        specifier: 4.1.4
+        version: 4.1.4
       elysia:
-        specifier: ^1.4.28
-        version: 1.4.28(@sinclair/typebox@0.34.49)(@types/bun@1.3.3)(exact-mirror@1.0.0)(file-type@22.0.1)(openapi-types@12.1.3)(typescript@5.9.3)
+        specifier: 1.4.31
+        version: 1.4.31(@sinclair/typebox@0.34.49)(@types/bun@1.3.3)(file-type@22.0.1)(openapi-types@12.1.3)(typescript@5.9.3)
+      elysia2:
+        specifier: npm:elysia@2.0.0-rc.4
+        version: elysia@2.0.0-rc.4(@types/bun@1.3.3)(openapi-types@12.1.3)(typescript@5.9.3)
       hono:
-        specifier: ^4.12.15
-        version: 4.12.15
+        specifier: 4.13.17
+        version: 4.13.17
+      kysely:
+        specifier: 0.29.8
+        version: 0.29.8
+      kysely-postgres-js:
+        specifier: 5.1.0
+        version: 5.1.0(kysely@0.29.8)(postgres@3.4.7)
       pg:
         specifier: ^8.20.0
         version: 8.20.0(pg-native@3.5.2)
@@ -76,8 +96,8 @@ importers:
         specifier: ^3.3.5
         version: 3.3.5
       drizzle-kit:
-        specifier: https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@51a35c1
-        version: https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@51a35c1(drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(valibot@1.4.2(typescript@5.9.3)))
+        specifier: https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@06d05af
+        version: https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@06d05af(drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38(@effect/sql-pg@4.1.4(effect@4.1.4))(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(effect@4.1.4)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(typebox@1.4.7)(valibot@1.4.2(typescript@5.9.3)))
       esbuild:
         specifier: ^0.19.2
         version: 0.19.12
@@ -166,6 +186,24 @@ packages:
 
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
+
+  '@drizzle-team/postgres@https://pkg.pr.new/drizzle-team/drizzle-orm/@drizzle-team/postgres@45b4a38':
+    resolution: {integrity: sha512-ZoKn6Eyx+pJSty1Kfr89C2dF0UWeazQxLkWCWiyJBgm/KUwOViZz9E104ve+A3DT2ikPmj4QA9Tn0oEGFmCprg==, tarball: https://pkg.pr.new/drizzle-team/drizzle-orm/@drizzle-team/postgres@45b4a38}
+    version: 0.0.0-preview-45b4a38
+    engines: {node: '>=22.12'}
+    peerDependencies:
+      '@electric-sql/pglite': '>=0.3.0'
+      effect: '>=4.1.3'
+    peerDependenciesMeta:
+      '@electric-sql/pglite':
+        optional: true
+      effect:
+        optional: true
+
+  '@effect/sql-pg@4.1.4':
+    resolution: {integrity: sha512-DHsmpIfJeCYiJVk3JwMQFAWaQAmKV/elUbBCjHFP7qeZtJ8dViUV/y/AHdUaZ+OmMwtr8J7ZXA7AlsKZ9hPiQA==}
+    peerDependencies:
+      effect: ^4.1.4
 
   '@electric-sql/pglite-socket@0.1.3':
     resolution: {integrity: sha512-LAciWM0M1dCL8hlsxu2venbVZcdxema0BtDfpWYVqr+Y468UADw0pFWidhKw1M8sfJ8rdLT71tjMmnirf/IZRQ==}
@@ -323,11 +361,11 @@ packages:
     resolution: {integrity: sha512-XQ3cU+Q8Uqmrbf2e0cIC/QN43sTBSC8KF12u29Mb47tWrt2hAgBXSgpZMj4Ao8Uk0iJcU99QsOCaIL8934obCg==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
 
-  '@hono/node-server@1.19.6':
-    resolution: {integrity: sha512-Shz/KjlIeAhfiuE93NDKVdZ7HdBVLQAfdbaXEaoAVO3ic9ibRSLGIQGkcBbFyuLr+7/1D5ZCINM8B+6IvXeMtw==}
-    engines: {node: '>=18.14.1'}
+  '@hono/node-server@2.1.6':
+    resolution: {integrity: sha512-p/KH9MnfNcsm3sR6x4lNgm5j+QN4Et8srKredl9DZfXiyZ1UQ3aQ2YVpFLbqktYN5JI+DB+VZFKM2PqE5hLKjQ==}
+    engines: {node: '>=20'}
     peerDependencies:
-      hono: ^4
+      hono: ^4 || ^5.0.0-0
 
   '@js-joda/core@5.6.5':
     resolution: {integrity: sha512-3zwefSMwHpu8iVUW8YYz227sIv6UFqO31p1Bf1ZH/Vom7CmNyUsXjDBlnNzcuhmOL1XfxZ3nvND42kR23XlbcQ==}
@@ -783,6 +821,7 @@ packages:
 
   deep-diff@1.0.2:
     resolution: {integrity: sha512-aWS3UIVH+NPGCD1kki+DCU9Dua032iSsO43LqQpcs4R3+dVv7tX0qBGjiVHJHjplsoUM2XRO/KB92glqc68awg==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   deep-extend@0.6.0:
     resolution: {integrity: sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==}
@@ -821,6 +860,9 @@ packages:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
 
+  deuri@3.0.1:
+    resolution: {integrity: sha512-IUgdopWhjToYbgpYDe3ZCBdzILexypCTCEakqDGQyKSlayxWL7yonY/zeJL9ICIjwVmAm3cpiAyT64rBn34gGg==}
+
   docker-modem@3.0.8:
     resolution: {integrity: sha512-f0ReSURdM3pcKPNS30mxOHSbaFLcknGmQjwSfmbcdOw1XWKXVhukM3NJHhr7NpY9BIyyWQb0EBo3KQvvuU5egQ==}
     engines: {node: '>= 8.0'}
@@ -837,9 +879,9 @@ packages:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
-  drizzle-kit@https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@51a35c1:
-    resolution: {integrity: sha512-fDKypHxHk37OeMLyK2Wadt6HMyKQc2Gd1AVob8P21qtcWnN6Ktais3Lby5rOr7i3kLzSebITA6bPNO/2uCB+bw==, tarball: https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@51a35c1}
-    version: 0.0.0-preview-51a35c1
+  drizzle-kit@https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@06d05af:
+    resolution: {integrity: sha512-CXfSJHBvPE5pRFEI//eb/1BhK0kZ0+fvUpcwwwMOyziOV4STOM5ETpCgk6JSPjYGLKnHxcOVuGJ5NwWKxPQ4ng==, tarball: https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@06d05af}
+    version: 0.0.0-preview-06d05af
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -851,9 +893,9 @@ packages:
       oxc-parser:
         optional: true
 
-  drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1:
-    resolution: {integrity: sha512-U6yNhIx76zNz5kJMmyeSVUYg8QdS3vNB9SlvVhV/WY6BkWmtQYONKyfgs1Sx37lmskUresTJR/6m4sCSWOWjqQ==, tarball: https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1}
-    version: 0.0.0-preview-51a35c1
+  drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38:
+    resolution: {integrity: sha512-rvebAQQLx/h25BT9aBCnrwDrKM8sBN/U/4boQvPNvs1r9zg2SB8Kjj0AqwDhLnCSUr75XlXm7ZxU3DIC1A3nJA==, tarball: https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38}
+    version: 0.0.0-preview-45b4a38
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -888,7 +930,6 @@ packages:
       '@types/mssql': '>=9.1.11'
       '@types/pg': '*'
       '@types/sql.js': '*'
-      '@upstash/redis': '>=1.34.7'
       '@vercel/postgres': '>=0.8.0'
       '@xata.io/client': '*'
       arktype: '>=2.0.0'
@@ -970,8 +1011,6 @@ packages:
         optional: true
       '@types/sql.js':
         optional: true
-      '@upstash/redis':
-        optional: true
       '@vercel/postgres':
         optional: true
       '@xata.io/client':
@@ -1015,18 +1054,33 @@ packages:
   effect@3.20.0:
     resolution: {integrity: sha512-qMLfDJscrNG8p/aw+IkT9W7fgj50Z4wG5bLBy0Txsxz8iUHjDIkOgO3SV0WZfnQbNG2VJYb0b+rDLMrhM4+Krw==}
 
+  effect@4.1.4:
+    resolution: {integrity: sha512-Tgrv/9FN+TZYyOn8XSli+fVqAfwDrDAkiX5Uu9vztINb675VTQdhD0gWI5Kzvhlh9QqzjZvw72iugqw5pwoghQ==}
+
   elkjs@0.11.1:
     resolution: {integrity: sha512-zxxR9k+rx5ktMwT/FwyLdPCrq7xN6e4VGGHH8hA01vVYKjTFik7nHOxBnAYtrgYUB1RpAiLvA1/U2YraWxyKKg==}
 
-  elysia@1.4.28:
-    resolution: {integrity: sha512-Vrx8sBnvq8squS/3yNBzR1jBXI+SgmnmvwawPjNuEHndUe5l1jV2Gp6JJ4ulDkEB8On6bWmmuyPpA+bq4t+WYg==}
+  elysia@1.4.31:
+    resolution: {integrity: sha512-8Dt6PcIvdPWe/9Nj1gpmdRy7z8y5JoPKP0yjtpmbF1bLa8MTbNvS0Xu+0kdC58L05Qp/2bzUjqdid0CJB4cLeQ==}
     peerDependencies:
       '@sinclair/typebox': '>= 0.34.0 < 1'
       '@types/bun': '>= 1.2.0'
-      exact-mirror: '>= 0.0.9'
       file-type: '>= 20.0.0'
       openapi-types: '>= 12.0.0'
       typescript: '>= 5.0.0'
+    peerDependenciesMeta:
+      '@types/bun':
+        optional: true
+      typescript:
+        optional: true
+
+  elysia@2.0.0-rc.4:
+    resolution: {integrity: sha512-0+II5vGTo/HLEkKF7glCefIXcVWnQV1ytDfIEqU2UC75ygt6Vqd3FWDkiMQYtIr2CzF6gew8yiuDqWKSA77LtQ==}
+    engines: {node: '>=22.18'}
+    peerDependencies:
+      '@types/bun': '>= 1.3.0'
+      openapi-types: '>= 12.0.0'
+      typescript: '>= 5.7.0'
     peerDependenciesMeta:
       '@types/bun':
         optional: true
@@ -1073,8 +1127,16 @@ packages:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
 
-  exact-mirror@1.0.0:
-    resolution: {integrity: sha512-tB6QSwlyUDZh22vS4ytBjmTvpMJ7eNNqSUtH4w7TpQsE7//V+MsdWUhO0B1UptzStDFHQBCxfJPtDDiVaFfRyQ==}
+  exact-mirror@0.2.9:
+    resolution: {integrity: sha512-7+ecLdWdlY0Br1E1Fax2Pss5VU3b1WQwJ8bdyt5azPNdhKHuivjQlV8baXF9NkQwlvnyOwaM6ITBiuK43PQ4wg==}
+    peerDependencies:
+      '@sinclair/typebox': ^0.34.15
+    peerDependenciesMeta:
+      '@sinclair/typebox':
+        optional: true
+
+  exact-mirror@1.2.7:
+    resolution: {integrity: sha512-HhEYVm/y8qbEFnErtr0K7Jsuy0GzRlblZVyeaMoZBSKBDpNuELwzsWtzXQjezFVPka6ZqFaD6+EW3TW+x59vrw==}
     peerDependencies:
       typebox: '>= 1.1.0'
     peerDependenciesMeta:
@@ -1188,8 +1250,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hono@4.12.15:
-    resolution: {integrity: sha512-qM0jDhFEaCBb4TxoW7f53Qrpv9RBiayUHo0S52JudprkhvpjIrGoU1mnnr29Fvd1U335ZFPZQY1wlkqgfGXyLg==}
+  hono@4.13.17:
+    resolution: {integrity: sha512-vZIcbkvjOR5hHRWERbGkr8fGfF0GGM1ooYkuH448iO3b2AdVEr3AXZSw4Z3Kn+1L5z0CVoVeyV29VGYmFh05kQ==}
     engines: {node: '>=16.9.0'}
 
   http-proxy-agent@7.0.2:
@@ -1261,6 +1323,20 @@ packages:
   jws@4.0.1:
     resolution: {integrity: sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA==}
 
+  kysely-postgres-js@5.1.0:
+    resolution: {integrity: sha512-n5OLGrxyb89l+gpmC97tGN7vCt+KRcck1JG0hEunnWuk2oKCeBrmK+0ADu6lJwLfCCZAdSC1kEhqbUUyXWqbgw==}
+    engines: {bun: '>=1.2', node: '>=22'}
+    peerDependencies:
+      kysely: '>= 0.29.0 < 1'
+      postgres: '>= 3.4.0 < 5'
+    peerDependenciesMeta:
+      postgres:
+        optional: true
+
+  kysely@0.29.8:
+    resolution: {integrity: sha512-ixHU1H4R+LeC5Y0nAhYgiGRFpFRHm2DXKEmJSs/vbes9sKXyssyzxzE/NYiOJX5fY0BL28biCre3GqlCqUwyXQ==}
+    engines: {node: '>=22.0.0'}
+
   libpq@1.8.15:
     resolution: {integrity: sha512-4lSWmly2Nsj3LaTxxtFmJWuP3Kx+0hYHEd+aNrcXEWT0nKWaPd9/QZPiMkkC680zeALFGHQdQWjBvnilL+vgWA==}
 
@@ -1301,6 +1377,9 @@ packages:
 
   memoirist@0.4.0:
     resolution: {integrity: sha512-zxTgA0mSYELa66DimuNQDvyLq36AwDlTuVRbnQtB+VuTcKWm5Qc4z3WkSpgsFWHNhexqkIooqpv4hdcqrX5Nmg==}
+
+  memoirist@1.2.4:
+    resolution: {integrity: sha512-4ZQz65pzZQl1fQEy0EPplIo+rzn0c1vzrqhrdnswr2IKYoPje58p2hZCCeiDD3iB0Bh6OVIaScirDIw8S5qHaQ==}
 
   mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
@@ -1447,6 +1526,7 @@ packages:
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
     engines: {node: '>=10'}
+    deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
     hasBin: true
 
   prisma@7.10.1:
@@ -1638,6 +1718,9 @@ packages:
 
   tweetnacl@0.14.5:
     resolution: {integrity: sha512-KXXFFdAbFXY4geFIwoyNK+f5Z1b7swfXABfL7HXCmoIWMKU3dmS26672A4EeQtDzLKy7SXmfBu51JolvEKwtGA==}
+
+  typebox@1.4.7:
+    resolution: {integrity: sha512-KonYdBj3gOgG/rH96TlUs/f+eaEDqiKRW7KU4/LE/tEjEnRCcfpYLofBfHfNMBAiBosmY55e4YeCPuE+NXmJtg==}
 
   types-ramda@0.29.10:
     resolution: {integrity: sha512-5PJiW/eiTPyXXBYGZOYGezMl6qj7keBiZheRwfjJZY26QPHsNrjfJnz0mru6oeqqoTHOni893Jfd6zyUXfQRWg==}
@@ -1860,6 +1943,15 @@ snapshots:
 
   '@borewit/text-codec@0.2.2': {}
 
+  '@drizzle-team/postgres@https://pkg.pr.new/drizzle-team/drizzle-orm/@drizzle-team/postgres@45b4a38(@electric-sql/pglite@0.4.3)(effect@4.1.4)':
+    optionalDependencies:
+      '@electric-sql/pglite': 0.4.3
+      effect: 4.1.4
+
+  '@effect/sql-pg@4.1.4(effect@4.1.4)':
+    dependencies:
+      effect: 4.1.4
+
   '@electric-sql/pglite-socket@0.1.3(@electric-sql/pglite@0.4.3)':
     dependencies:
       '@electric-sql/pglite': 0.4.3
@@ -1941,9 +2033,9 @@ snapshots:
 
   '@faker-js/faker@8.4.1': {}
 
-  '@hono/node-server@1.19.6(hono@4.12.15)':
+  '@hono/node-server@2.1.6(hono@4.13.17)':
     dependencies:
-      hono: 4.12.15
+      hono: 4.13.17
 
   '@js-joda/core@5.6.5':
     optional: true
@@ -2529,6 +2621,8 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
+  deuri@3.0.1: {}
+
   docker-modem@3.0.8:
     dependencies:
       debug: 4.4.3
@@ -2550,22 +2644,25 @@ snapshots:
 
   dotenv@17.4.2: {}
 
-  drizzle-kit@https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@51a35c1(drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(valibot@1.4.2(typescript@5.9.3))):
+  drizzle-kit@https://pkg.pr.new/drizzle-team/drizzle-orm/drizzle-kit@06d05af(drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38(@effect/sql-pg@4.1.4(effect@4.1.4))(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(effect@4.1.4)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(typebox@1.4.7)(valibot@1.4.2(typescript@5.9.3))):
     optionalDependencies:
-      drizzle-orm: https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(valibot@1.4.2(typescript@5.9.3))
+      drizzle-orm: https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38(@effect/sql-pg@4.1.4(effect@4.1.4))(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(effect@4.1.4)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(typebox@1.4.7)(valibot@1.4.2(typescript@5.9.3))
 
-  drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@51a35c1(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(valibot@1.4.2(typescript@5.9.3)):
+  drizzle-orm@https://pkg.pr.new/drizzle-team/drizzle-orm@45b4a38(@effect/sql-pg@4.1.4(effect@4.1.4))(@electric-sql/pglite@0.4.3)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.15.6)(better-sqlite3@12.5.0)(bun-types@1.3.3)(effect@4.1.4)(mssql@11.0.1)(mysql2@3.24.4(@types/node@24.10.1))(pg@8.20.0(pg-native@3.5.2))(postgres@3.4.7)(typebox@1.4.7)(valibot@1.4.2(typescript@5.9.3)):
     optionalDependencies:
+      '@effect/sql-pg': 4.1.4(effect@4.1.4)
       '@electric-sql/pglite': 0.4.3
       '@sinclair/typebox': 0.34.49
       '@types/better-sqlite3': 7.6.13
       '@types/pg': 8.15.6
       better-sqlite3: 12.5.0
       bun-types: 1.3.3
+      effect: 4.1.4
       mssql: 11.0.1
       mysql2: 3.24.4(@types/node@24.10.1)
       pg: 8.20.0(pg-native@3.5.2)
       postgres: 3.4.7
+      typebox: 1.4.7
       valibot: 1.4.2(typescript@5.9.3)
 
   dunder-proto@1.0.1:
@@ -2584,17 +2681,30 @@ snapshots:
       '@standard-schema/spec': 1.0.0
       fast-check: 3.23.2
 
+  effect@4.1.4: {}
+
   elkjs@0.11.1: {}
 
-  elysia@1.4.28(@sinclair/typebox@0.34.49)(@types/bun@1.3.3)(exact-mirror@1.0.0)(file-type@22.0.1)(openapi-types@12.1.3)(typescript@5.9.3):
+  elysia@1.4.31(@sinclair/typebox@0.34.49)(@types/bun@1.3.3)(file-type@22.0.1)(openapi-types@12.1.3)(typescript@5.9.3):
     dependencies:
       '@sinclair/typebox': 0.34.49
       cookie: 1.1.1
-      exact-mirror: 1.0.0
+      exact-mirror: 0.2.9(@sinclair/typebox@0.34.49)
       fast-decode-uri-component: 1.0.1
       file-type: 22.0.1
       memoirist: 0.4.0
       openapi-types: 12.1.3
+    optionalDependencies:
+      '@types/bun': 1.3.3
+      typescript: 5.9.3
+
+  elysia@2.0.0-rc.4(@types/bun@1.3.3)(openapi-types@12.1.3)(typescript@5.9.3):
+    dependencies:
+      deuri: 3.0.1
+      exact-mirror: 1.2.7(typebox@1.4.7)
+      memoirist: 1.2.4
+      openapi-types: 12.1.3
+      typebox: 1.4.7
     optionalDependencies:
       '@types/bun': 1.3.3
       typescript: 5.9.3
@@ -2654,7 +2764,13 @@ snapshots:
   events@3.3.0:
     optional: true
 
-  exact-mirror@1.0.0: {}
+  exact-mirror@0.2.9(@sinclair/typebox@0.34.49):
+    optionalDependencies:
+      '@sinclair/typebox': 0.34.49
+
+  exact-mirror@1.2.7(typebox@1.4.7):
+    optionalDependencies:
+      typebox: 1.4.7
 
   expand-template@2.0.3: {}
 
@@ -2760,7 +2876,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.12.15: {}
+  hono@4.13.17: {}
 
   http-proxy-agent@7.0.2:
     dependencies:
@@ -2846,6 +2962,14 @@ snapshots:
       safe-buffer: 5.2.1
     optional: true
 
+  kysely-postgres-js@5.1.0(kysely@0.29.8)(postgres@3.4.7):
+    dependencies:
+      kysely: 0.29.8
+    optionalDependencies:
+      postgres: 3.4.7
+
+  kysely@0.29.8: {}
+
   libpq@1.8.15:
     dependencies:
       bindings: 1.5.0
@@ -2882,6 +3006,8 @@ snapshots:
   math-intrinsics@1.1.0: {}
 
   memoirist@0.4.0: {}
+
+  memoirist@1.2.4: {}
 
   mime-db@1.52.0: {}
 
@@ -3247,6 +3373,8 @@ snapshots:
       safe-buffer: 5.2.1
 
   tweetnacl@0.14.5: {}
+
+  typebox@1.4.7: {}
 
   types-ramda@0.29.10:
     dependencies:

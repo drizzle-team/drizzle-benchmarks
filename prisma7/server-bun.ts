@@ -1,13 +1,12 @@
 import { Hono } from 'hono';
 import { PrismaClient } from './generated/prisma/client.ts';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { createAdapter } from './adapter.ts';
 import cpuUsage from '../src/cpu-usage.ts';
 import cluster from 'cluster';
 import os from 'os';
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
+// DRIVER=pg (default) | drizzle, STATEMENT_NAMES=1, POOL_MAX: see ./adapter.ts
+const adapter = createAdapter();
 const prisma = new PrismaClient({ adapter });
 
 const app = new Hono();

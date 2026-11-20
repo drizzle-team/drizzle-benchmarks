@@ -17,6 +17,19 @@ export interface Monitor {
   sample(ctx: { host: string; signal: AbortSignal }): MetricSample | Promise<MetricSample>;
 }
 
+/** One second of a run, for BenchConfig.onSecond. */
+export interface SecondStats {
+  /** seconds since the run started */
+  elapsed: number;
+  /** VUs running at the end of the second */
+  vus: number;
+  /** requests completed in the second, failed ones included */
+  requests: number;
+  failed: number;
+  /** summed latency of the successful requests, ms */
+  latencySumMs: number;
+}
+
 export interface BenchConfig {
   /** Target base URL, e.g. http://192.168.31.144:3000 (http or https). */
   host: string;
@@ -57,6 +70,12 @@ export interface BenchConfig {
    * Return `{ cpu: [..] }` to feed the CPU charts (cpu.1..cpu.4 become core1..core4).
    */
   monitor?: false | Monitor | Monitor[];
+  /**
+   * Called once a second on the main thread with that second's numbers (counted as results arrive from
+   * the workers). Return true to end the run early, e.g. once the server is saturated: the VUs stop,
+   * in-flight requests finish, and everything recorded so far is kept, like a Ctrl-C.
+   */
+  onSecond?(s: SecondStats): boolean | void;
 
   /** Print per-second progress + summary. Default true. */
   log?: boolean;

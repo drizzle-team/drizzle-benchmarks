@@ -125,11 +125,16 @@ async function runMain(config: BenchConfig, runIndex: number): Promise<RunResult
   });
 
   let interrupted = false;
+  let stopping = false;
+  const stop = () => {
+    stopping = true;
+    for (const w of pool) w.postMessage({ type: 'stop' });
+  };
   const onSigint = () => {
     if (interrupted) process.exit(130);
     interrupted = true;
     console.log('\nstopping… (Ctrl-C again to abort; flushed parts are kept)');
-    for (const w of pool) w.postMessage({ type: 'stop' });
+    stop();
   };
   process.on('SIGINT', onSigint);
 
@@ -181,6 +186,10 @@ async function runMain(config: BenchConfig, runIndex: number): Promise<RunResult
           (sink.flushing ? ` flushed=${sink.rowsFlushed}` : '') +
           (monitors.length ? ` | ${fmtLatest() || 'no samples'}${monitorErrors ? ` (${monitorErrors} monitor errors)` : ''}` : ''),
       );
+    }
+    if (config.onSecond && !stopping) {
+      const s = { elapsed, vus: secVus, requests: secCount, failed: secFail, latencySumMs: secDurSum };
+      if (config.onSecond(s)) stop();
     }
     secCount = secFail = secDurSum = 0;
   }, 1000);

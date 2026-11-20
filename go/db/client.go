@@ -3,6 +3,9 @@ package db
 import (
 	"context"
 	"fmt"
+	"os"
+	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/bytedance/sonic"
@@ -22,7 +25,13 @@ func NewDatabase(databaseUrl string) (*Client, error) {
 		return nil, err
 	}
 
-	config.MaxConns = 200
+	// Same connection budget as the Drizzle servers: they run one process per core with POOL_MAX
+	// (default 10) connections each; Go is one process, so it gets POOL_MAX per core in one pool.
+	perCore := 10
+	if v, err := strconv.Atoi(os.Getenv("POOL_MAX")); err == nil && v > 0 {
+		perCore = v
+	}
+	config.MaxConns = int32(perCore * runtime.NumCPU())
 	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
 		sonicCodec := &pgtype.JSONCodec{
 			Marshal:   sonic.Marshal,

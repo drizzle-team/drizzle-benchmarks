@@ -1,7 +1,9 @@
 // Drizzle database for the benchmark servers, with a selectable Postgres driver:
 //
 //   DRIVER=pg       node-postgres (pg.Pool)                       default on Node
-//   DRIVER=drizzle  drizzle-orm/postgres (Drizzle's own driver)
+//   DRIVER=drizzle  drizzle-orm/postgres (Drizzle's own driver). Its Pool pipelines independent queries
+//                   over the shared connections, depth auto from the round trip; PIPELINE=off checks a
+//                   connection out per query instead (the pre-06d05af behaviour), PIPELINE=<n> fixes the depth
 //   DRIVER=bun      Bun.SQL                                        default on Bun, Bun only
 //
 // Every driver gets the same pool size per server process (POOL_MAX, default 10).
@@ -16,6 +18,9 @@ const isBun = typeof Bun !== 'undefined';
 export const driver = (process.env.DRIVER ?? (isBun ? 'bun' : 'pg')) as Driver;
 const url = process.env.DATABASE_URL!;
 const max = Number(process.env.POOL_MAX ?? 10);
+// DRIVER=drizzle only: unset/auto = driver default, off = no pipelining, <n> = fixed depth
+const pipe = process.env.PIPELINE;
+const pipeline = !pipe || pipe === 'auto' ? undefined : pipe === 'off' ? false : { depth: Number(pipe) };
 
 // All three are pg-core databases with the same query API; typed as one for the handlers.
 type Db = NodePgDatabase<typeof relations>;
@@ -33,7 +38,7 @@ export function createDb(): Db {
     }
     case 'drizzle': {
       const { Pool, drizzle } = require('drizzle-orm/postgres') as typeof import('drizzle-orm/postgres');
-      const client = new Pool({ url, max });
+      const client = new Pool({ url, max, pipeline });
       return drizzle({ client, relations, jit: true }) as unknown as Db;
     }
     case 'bun': {

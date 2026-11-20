@@ -1,12 +1,12 @@
 import { Elysia } from 'elysia';
 import { PrismaClient } from './generated/prisma/client.ts';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { createAdapter } from './adapter.ts';
 import cluster from 'cluster';
 import os from 'os';
+import { procStats } from '../src/cpu-usage.ts';
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
+// DRIVER=pg (default) | drizzle, STATEMENT_NAMES=1, POOL_MAX: see ./adapter.ts
+const adapter = createAdapter();
 const prisma = new PrismaClient({ adapter });
 
 interface CpuUsage {
@@ -17,6 +17,7 @@ interface CpuUsage {
 let cpuTemp: CpuUsage[] = [];
 
 const app = new Elysia()
+  .get('/stats/procs', () => procStats())
   .get('/stats', () => {
     const cpus = os.cpus();
     const cpuUsage = cpus.map((cpu) => {

@@ -63,6 +63,8 @@ func main() {
 		mu   sync.Mutex
 	)
 
+	app.Get("/stats/procs", func(c fiber.Ctx) error { return c.JSON(procStats()) })
+
 	app.Get("/stats", func(c fiber.Ctx) error {
 		times, err := cpu.Times(true)
 		if err != nil {

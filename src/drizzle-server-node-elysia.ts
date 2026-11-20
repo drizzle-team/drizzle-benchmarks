@@ -5,6 +5,7 @@ import 'dotenv/config';
 import { asc, eq, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import os from 'os';
+import { procStats } from './cpu-usage.ts';
 import pg from 'pg';
 import { relations } from './relations.ts';
 import { details, orders } from './schema.ts';
@@ -169,6 +170,7 @@ interface CpuUsage {
 let cpuTemp: CpuUsage[] = [];
 
 const app = new Elysia()
+  .get('/stats/procs', () => procStats())
   .get('/stats', () => {
     const cpus = os.cpus();
     const cpuUsage = cpus.map((cpu) => {
